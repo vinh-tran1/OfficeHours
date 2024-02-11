@@ -1,5 +1,5 @@
 <h1 align="center">
-<!--   <img src="frontend/assets/white-bg-logo.png" width="400" /> -->
+<!--   <img src="public/assets/white-bg-logo.png" width="400" /> -->
 <!--   <br/> -->
   O(H) LOGO HERE
   <br/>
@@ -23,7 +23,7 @@ Description Here
 
 ## Table of Contents
 
-Content Tree Here
+Table of Contents Here
 
 ## Tech Stack
 
@@ -31,19 +31,29 @@ Content Tree Here
 - Flask
 - PostgreSQL
 
-## Contributions
-
-### Nikhil Ismail ('24.5, netid)
-
-### Vinh Tran ('25, netid)
-
-### Haroonn Mohamedali ('26, netid)
-
 ## Code Structure
 
 File Tree Here
 
+## Deployment
+
+Deployment instructions here
+
 ## Testing
 
 Testing Results Here
+
+## Contributions
+
+### Nikhil Ismail ('24.5, netid)
+
+Contributions here
+
+### Vinh Tran ('25, netid)
+
+Contributions here
+
+### Haroon Mohamedali ('26, netid)
+
+Contributions here
 
