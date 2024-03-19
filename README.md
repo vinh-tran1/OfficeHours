@@ -45,9 +45,9 @@ Testing Results Here
 
 ## Contributions
 
-### Nikhil Ismail ('24.5, netid)
+### Nikhil Ismail ('24.5, ni58)
 
-Contributions here
+Set up frontend skeleton, set up react router for navigation, built UI for auth page
 
 ### Vinh Tran ('25, netid)
 
