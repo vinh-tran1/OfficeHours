@@ -1,24 +1,27 @@
-import logo from './logo.svg';
+import React, { useState } from "react";
+import { ChakraProvider } from '@chakra-ui/react'
 import './App.css';
+import Navbar from "../src/Navbar/Navbar";
+import Auth from "./Auth/Auth";
+import Home from "./Home/Home";
 
-function App() {
+const App = () => {
+
+  const [authenticated, setAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setAuthenticated(true)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ChakraProvider>
+      <Navbar />
+      {authenticated ?
+      <Home />
+      :
+      <Auth handleLogin={handleLogin} />
+      }
+    </ChakraProvider>
   );
 }
 
