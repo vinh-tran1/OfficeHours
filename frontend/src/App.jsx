@@ -7,12 +7,12 @@ import {
   Navigate
 } from 'react-router-dom';
 import './App.css';
-import Navbar from "../src/Navbar/Navbar";
-import Auth from "./Auth/Auth";
-import StudentHome from "./Home/StudentHome";
-import About from "./About/About";
-import FAQ from "./FAQ/FAQ";
-import Calendar from "./Calendar/Calendar";
+import Navbar from "./components/Navbar/Navbar";
+import Auth from "./pages/Auth/Auth";
+import StudentHome from "./pages/Home/StudentHome";
+import About from "./pages/About/About";
+import FAQ from "./pages/FAQ/FAQ";
+import Calendar from "./pages/Calendar/Calendar";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
