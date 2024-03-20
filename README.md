@@ -1,7 +1,5 @@
 <h1 align="center">
-<!--   <img src="public/assets/white-bg-logo.png" width="400" /> -->
-<!--   <br/> -->
-  O(H) LOGO HERE
+  <img src="frontend/public/text_logo.png" width="400" />
   <br/>
   office hours calendar app for students
 </h1>
@@ -27,7 +25,7 @@ Table of Contents Here
 
 ## Tech Stack
 
-- React
+- React + ChakraUI
 - Flask
 - PostgreSQL
 
@@ -37,7 +35,44 @@ File Tree Here
 
 ## Deployment
 
-Deployment instructions here
+### Local
+
+#### Frontend
+
+To run the React app on your local machine:
+
+```bash
+# navigate to frontend
+$ cd frontend
+# install dependencies
+$ npm install
+# run react app
+$ npm start
+```
+
+#### Backend
+
+To run the Flask server directly on your local machine:
+
+```bash
+# navigate to backend
+$ cd backend
+# install dependencies
+$ pip install -r requirements.txt
+# run flask app
+$ python runserver.py <port>
+```
+
+**Note: it is recommended to use a virtual environment for python**
+
+```bash
+# activate
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+
+# deactivate
+$ deactivate
+```
 
 ## Testing
 
