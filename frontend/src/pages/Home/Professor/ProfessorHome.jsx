@@ -1,12 +1,12 @@
 import React from 'react';
 import { Flex, Text } from '@chakra-ui/react';
 
-const StudentHome = () => {
+const ProfessorHome = () => {
   return (
     <Flex flexDir={"column"}>
-       <Text>My Classes</Text>
+       <Text>Professor home</Text>
     </Flex>
   );
 };
 
-export default StudentHome;
+export default ProfessorHome;

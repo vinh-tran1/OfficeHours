@@ -9,7 +9,7 @@ import {
 import './App.css';
 import Navbar from "./components/Navbar/Navbar";
 import Auth from "./pages/Auth/Auth";
-import StudentHome from "./pages/Home/StudentHome";
+import StudentHome from "./pages/Home/Student/StudentHome";
 import About from "./pages/About/About";
 import FAQ from "./pages/FAQ/FAQ";
 import Calendar from "./pages/Calendar/Calendar";

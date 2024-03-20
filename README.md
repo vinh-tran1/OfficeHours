@@ -29,7 +29,7 @@ Table of Contents Here
 - Flask
 - PostgreSQL
 
-## Code Structure
+## Folder Structure
 
 File Tree Here
 
