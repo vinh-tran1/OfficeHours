@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex, Text, Spacer, IconButton } from '@chakra-ui/react';
 import { FaRegUserCircle } from 'react-icons/fa';
-import { Link as RouterLink } from 'react-router-dom'; // Import RouterLink from react-router-dom
+import { Link as RouterLink } from 'react-router-dom';
 
 const Navbar = ({ authenticated, handleLogout }) => {
   return (
