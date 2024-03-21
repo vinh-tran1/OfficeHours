@@ -25,14 +25,31 @@ const App = () => {
     setAuthenticated(false);
   }
 
+  const ProtectedRoute = ({ children }) => {
+    if (!authenticated) {
+      return <Navigate replace={true} to="/auth" />;
+    }
+    return children;
+  };
+
   return (
     <ChakraProvider>
       <Router>
         <Navbar handleLogout={handleLogout} authenticated={authenticated} />
         <Routes>
-          <Route path="/" element={authenticated ? <StudentHome /> : <Navigate replace={true} to="/auth" />} />
+          <Route path="/" element={<Navigate replace={true} to={authenticated ? "/student" : "/auth"} />} />
           <Route path="/auth" element={<Auth handleLogin={handleLogin} />} />
-          {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/" />} />}
+          {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/student" />} />}
+          
+          {/* protected routes: only access if authenticated */}
+          <Route path="/student" element={
+            <ProtectedRoute>
+              <StudentHome />
+            </ProtectedRoute>
+          } />
+
+          {/* find way to differentiate for professor to have routes for them */}
+
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
