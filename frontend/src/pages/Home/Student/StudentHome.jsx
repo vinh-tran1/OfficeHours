@@ -36,8 +36,7 @@ const StudentHome = () => {
     <Flex px={10}>
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
-        <Text fontSize="xl" fontWeight="semibold">Vinh Tran</Text>
-        <Text fontSize="4xl" fontWeight="bold" color="#063763" mt={6} mb={8}>Spring 2024</Text>
+        <Text fontSize="3xl" fontWeight="bold" opacity="85%" color="#063763" mt={2} mb={8}>Spring 2024</Text>
 
         {/* grid of classes */}
         <Flex direction={{ base: 'column', lg: 'row' }} w="full">
@@ -75,7 +74,7 @@ const StudentHome = () => {
 
               <Text>temporary: {addedClass}</Text>
               {/* dropdown list could go here */}
-              
+
             </VStack>
           </Box>
         </Flex>

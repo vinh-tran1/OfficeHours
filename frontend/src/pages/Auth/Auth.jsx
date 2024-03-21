@@ -13,7 +13,7 @@ const Auth = ({ handleLogin }) => {
 
   return (
     <Flex flexDir={"row"}>
-        <Flex ml={20} flexDir={"column"}>
+        <Flex ml={20} mt={10} flexDir={"column"}>
             <Flex pt={50}>
                 <Heading fontSize={100} fontWeight={"bold"} color={"#4988C1"}>O</Heading>
                 <Heading fontSize={100} fontWeight={"bold"} color={"#063763"}>ffice</Heading>
