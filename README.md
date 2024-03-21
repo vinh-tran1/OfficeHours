@@ -25,7 +25,7 @@ Table of Contents Here
 
 ## Tech Stack
 
-- React + ChakraUI
+- React + Chakra UI
 - Flask
 - PostgreSQL
 
@@ -52,7 +52,7 @@ $ npm start
 
 #### Backend
 
-To run the Flask server directly on your local machine:
+To run the Flask server directly on your local machine (port is env variable set to 80):
 
 ```bash
 # navigate to backend
@@ -60,7 +60,7 @@ $ cd backend
 # install dependencies
 $ pip install -r requirements.txt
 # run flask app
-$ python runserver.py <port>
+$ python run.py
 ```
 
 **Note: it is recommended to use a virtual environment for python**

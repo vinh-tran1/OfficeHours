@@ -5,27 +5,30 @@ description: runs flask app
 
 import argparse
 import sys
+import os
 from app import app
 
-def get_port():
-    """ parse the command line arguments for port
-        store argument as variable
-    """
+
+# def get_port():
+#     """ parse the command line arguments for port
+#         store argument as variable
+#     """
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument('port', metavar='port', type=int,
-                    help='the port at which the server should listen')
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('port', metavar='port', type=int,
+#                     help='the port at which the server should listen')
 
-    args = parser.parse_args()
-    port =  args.port
+#     args = parser.parse_args()
+#     port =  args.port
 
-    return port
+#     return port
 
 def main():
     """ main function to start flask app
     """
 
-    port = get_port()
+    # port = get_port()
+    port = int(os.getenv('PORT', 80))
 
     try:
         app.run(host='0.0.0.0', port=port, debug=True)
