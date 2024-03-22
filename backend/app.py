@@ -4,18 +4,20 @@ description: flask app
 """
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 ####################################################
 # instantiate flask app
 ####################################################
 app = Flask(__name__, template_folder='/')
+CORS(app)
 
 ####################################################
 # home routes
 ####################################################
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({ 'reponse':'home test' })
+    return jsonify({ 'response':'home test' })
 
 ####################################################
 # auth routes
@@ -28,8 +30,17 @@ def test_auth():
 # student routes
 ####################################################
 @app.route('/student', methods=['GET'])
-def test_student():
-    return jsonify({ 'response':'student test' })
+def get_classes():
+    # dummy data
+    classes = [
+        { 'title': 'CPSC 419', 'name': 'Full Stack', 'hours': '7' },
+        { 'title': 'CPSC 323', 'name': 'Intro to Systems', 'hours': '20' },
+        { 'title': 'CPSC 365', 'name': 'Algorithms', 'hours': '12' },
+        { 'title': 'CPSC 223', 'name': 'Data Structures', 'hours': '4' },
+        { 'title': 'CPSC 429', 'name': 'Software Engineering', 'hours': '2' }
+    ]
+    
+    return jsonify(classes)
 
 ####################################################
 # professor routes

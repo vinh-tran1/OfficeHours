@@ -1,13 +1,10 @@
 <h1 align="center">
   <img src="frontend/public/text_logo.png" width="400" />
   <br/>
-  office hours calendar app for students
+  office hours calendar app
 </h1>
 
 <div align="center">
-  <p>
-    Short Description Here
-  </p>
   <p>
     <strong>Final Project Assignment, CPSC419</strong>
   </p>

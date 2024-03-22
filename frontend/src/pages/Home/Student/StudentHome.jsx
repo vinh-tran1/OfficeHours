@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -10,19 +10,26 @@ import {
   InputLeftElement,
 } from '@chakra-ui/react';
 import { FaSearch } from 'react-icons/fa';
+import axios from 'axios';
 import ClassCard from './ClassCard';
 
 const StudentHome = () => {
-  // dummy data
-  const classes = [
-    { title: 'CPSC 419', name: 'Full Stack', hours: '7' },
-    { title: 'CPSC 323', name: 'Intro to Systems', hours: '20' },
-    { title: 'CPSC 365', name: 'Algorithms', hours: '12' },
-    { title: 'CPSC 223', name: 'Data Structures', hours: '4' },
-    { title: 'CPSC 429', name: 'Software Engineering', hours: '2' },
-  ];
-
+  
+  const API_URL = process.env.REACT_APP_API_URL_LOCAL + "/student";
+  const [classes, setClasses] = useState([]);
   const [addedClass, setAddedClass] = useState("");
+  console.log(API_URL)
+
+  // get classes
+  useEffect(() => {
+    axios.get(API_URL)
+    .then((response) => {
+      setClasses(response.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }, [])
 
   // const handleAddClass = async () => {
   //   console.log(addedClass)
@@ -33,7 +40,7 @@ const StudentHome = () => {
   // }
 
   return (
-    <Flex px={10}>
+    <Flex px={5}>
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
         <Text fontSize="3xl" fontWeight="bold" opacity="85%" color="#063763" mt={2} mb={8}>Spring 2024</Text>
@@ -55,6 +62,7 @@ const StudentHome = () => {
             borderRadius="lg"
             borderColor="#4073AF"
             w={{ base: 'full', lg: 'sm' }}
+            h={500}
             bg="#F3F8FF"
             boxShadow="lg"
             flex="1"
