@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const MotionBox = motion(Box);
 
 const AboutPage = () => {
-  // Dummy data for founders
+
   const team = [
     { name: 'Vinh Tran', student: 'Yale \'25 | Computer Science & Economics', image: '/vinh.png', work: 'Moderna' },
     { name: 'Nikhil Ismail', student: 'Yale \'24.5 | Computer Science', image: '/nikhil.png', work: 'Microsoft' },
@@ -24,16 +24,12 @@ const AboutPage = () => {
         <Flex flexDirection="column" w="60%" align="center" marginLeft="auto" marginRight="auto">
           <Text fontSize="3xl" fontWeight="semibold" textAlign="center">What we hope to solve</Text>
           <Text fontSize="lg" textAlign="center" mt={4}>
-          Currently, there is no consistent way to 
-          keep track of office hours, peer tutoring, etc. 
-          Students often take 4-6 classes, each with their own set of differing 
-          schedules: some professors use Google Calendar, some use Google Sheets, so
-          me just display it on the Home page of Canvas, 
-          while others just put it in their syllabus. 
-          Many students input these office hours into their own calendar, 
-          an arduous process of creating 10-20 different events and the worst part: 
-          OH are updated/canceled as the semester progresses. 
-          That means students have to continually look out for announcements, 
+          Currently, there is no consistent way to keep track of office hours, peer tutoring, etc. 
+          Students often take 4-6 classes, each with their own set of differing schedules. 
+          Some professors use Google Calendar, some use Google Sheets, some just display it on the Home page of Canvas, 
+          while others just put it in their syllabus. Many students input these office hours into their own calendar, 
+          an arduous process of creating 10-20 different events and the worst part is that 
+          OH are updated/canceled as the semester progresses. That means students have to continually look out for announcements, 
           emails, etc. and physically update their own calendars to match.
           </Text>
         </Flex>
@@ -50,8 +46,10 @@ const AboutPage = () => {
           O(H), or Office(H)ours, is an office hours calendar and visualizer 
           to better organize and coordinate schedules designed 
           with the user in mind. Rather than just being a website that displays 
-          set classes OHs, O(H) 
-          offers a more individualized way to keep track of OHs.
+          set classes OHs, O(H) offers a more individualized way to keep track of OHs.
+          In addition, it offers seamless communication with professors and TA/ULAs as
+          they can update times and events on the app which will automatically update on
+          the student's view.
           </Text>
         </Flex>
       </MotionBox>

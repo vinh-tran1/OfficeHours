@@ -1,7 +1,7 @@
 <h1 align="center">
   <img src="frontend/public/text_logo.png" width="400" />
   <br/>
-  office hours calendar app
+  office hours management app
 </h1>
 
 <div align="center">
@@ -83,7 +83,7 @@ Set up frontend skeleton, set up react router for navigation, built UI for auth 
 
 ### Vinh Tran ('25, netid)
 
-Contributions here
+Set up backend skeleton + designed frontend UI and worked on student view, FAQ, and About pages
 
 ### Haroon Mohamedali ('26, hhm22)
 

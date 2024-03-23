@@ -18,7 +18,9 @@ const StudentHome = () => {
   const API_URL = process.env.REACT_APP_API_URL_LOCAL + "/student";
   const [classes, setClasses] = useState([]);
   const [addedClass, setAddedClass] = useState("");
-  console.log(API_URL)
+
+  // dummy student data
+  const student = {role: "Student", name: "Vinh"}
 
   // get classes
   useEffect(() => {
@@ -40,13 +42,16 @@ const StudentHome = () => {
   // }
 
   return (
-    <Flex px={5}>
+    <Flex px={10}>
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
-        <Text fontSize="3xl" fontWeight="bold" opacity="85%" color="#063763" mt={2} mb={8}>Spring 2024</Text>
+        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({student.role}) {student.name}</Text>
+        <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
 
         {/* grid of classes */}
         <Flex direction={{ base: 'column', lg: 'row' }} w="full">
+          {classes.length === 0 && <Text fontSize={20}>No classes yet...</Text>}
+
           <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
             {classes.map((classInfo, index) => (
               <ClassCard key={index} title={classInfo.title} name={classInfo.name} hours={classInfo.hours} />
