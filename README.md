@@ -85,7 +85,6 @@ Set up frontend skeleton, set up react router for navigation, built UI for auth 
 
 Contributions here
 
-### Haroon Mohamedali ('26, netid)
+### Haroon Mohamedali ('26, hhm22)
 
-Contributions here
-
+Set up PostgreSQL DB and worked on professor view

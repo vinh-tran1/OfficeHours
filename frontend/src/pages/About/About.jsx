@@ -9,7 +9,7 @@ const AboutPage = () => {
   const team = [
     { name: 'Vinh Tran', student: 'Yale \'25 | Computer Science & Economics', image: '/vinh.png', work: 'Moderna' },
     { name: 'Nikhil Ismail', student: 'Yale \'24.5 | Computer Science', image: '/nikhil.png', work: 'Microsoft' },
-    { name: 'Haroon Mohamedali', student: 'Yale \'26 | Computer Science', image: '/haroon.png', work: 'Gerstein Lab' },
+    { name: 'Haroon Mohamedali', student: 'Yale \'26 | Computer Science', image: '/haroon.jpeg', work: 'Gerstein Lab' },
   ];
 
   return (

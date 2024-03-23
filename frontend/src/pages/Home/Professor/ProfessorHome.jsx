@@ -1,7 +1,9 @@
 import React from 'react';
 import {
+  Box,
   Flex,
   Grid,
+  IconButton,
   Text,
 } from '@chakra-ui/react'
 import { Admin } from '../../../classes/Admin';
@@ -10,13 +12,18 @@ import { Room } from '../../../classes/Room';
 import { ZipCode } from '../../../classes/ZipCode';
 import ClassCard from './ClassCard';
 import { Event } from '../../../classes/Event';
+import { FaPlus } from 'react-icons/fa';
+import AddCard from './AddCard';
 
 const ProfessorHome = () => {
 
   const admin = new Admin("id", "Alan Weide", "Professor", "alan.weide@yale.edu")
+  const hillhouse = new Room("id", "DL 419", "419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT"));
+  const monday = new Event("id", hillhouse, "short description", "Monday", "4:00pm", "5:00pm");
+  const tuesday = new Event("id", hillhouse, "short description", "Tuesday", "4:00pm", "5:00pm")
   const classes = [
-    { "class": new Class("CPSC 419", "Full Stack", new Room("id", "DL 419", "419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT")), "MW 1:00pm-2:15pm", '7'), "events": [Event("id", "")], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2")]},
-    { "class": new Class("CPSC 223", "Data Structures", new Room("id", "DL 419", "419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT")), "TTh 2:30pm-5:15pm", '8'), "events": [], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2"), new Admin("id", "Person 3", "ULA", "person3@gmail.com", "1")]}
+    { "class": new Class("CPSC 419", "Full Stack", hillhouse, "MW 1:00pm-2:15pm", '7'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2")]},
+    { "class": new Class("CPSC 223", "Data Structures", hillhouse, "TTh 2:30pm-5:15pm", '8'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2"), new Admin("id", "Person 3", "ULA", "person3@gmail.com", "1")]}
   ];
 
   return (
@@ -32,6 +39,7 @@ const ProfessorHome = () => {
             {classes.map((cls, index) => (
               <ClassCard key={index} cls={cls.class} events={cls.events} ta={cls.ta} />
             ))}
+            <AddCard />
           </Grid>
         </Flex>
       </Flex>

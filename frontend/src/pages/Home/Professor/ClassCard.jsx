@@ -41,10 +41,11 @@ const ClassCard = ({ cls, events, ta }) => {
                     variant="ghost"
                 />
             </Flex>
-            <Text fontSize="l" fontWeight="semibold" color="gray">Class: {cls.time}</Text>
+            {/* <Text fontSize="l" fontWeight="semibold" color="gray">Class: {cls.time}</Text> */}
             {events.map((event, index) => (
-              <Box key={index}>
-                
+              <Box key={index} mb={2}>
+                <Text fontSize="l" fontWeight="semibold" color="gray">{event.day.toUpperCase()}:</Text>
+                <Text fontSize="l" fontWeight="semibold" color="gray">{event.start + "-" + event.end}</Text>
               </Box>
             ))}
 
