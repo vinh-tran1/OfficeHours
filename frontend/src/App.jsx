@@ -13,6 +13,7 @@ import StudentHome from "./pages/Home/Student/StudentHome";
 import About from "./pages/About/About";
 import FAQ from "./pages/FAQ/FAQ";
 import Calendar from "./pages/Calendar/Calendar";
+import ProfessorHome from "./pages/Home/Professor/ProfessorHome";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -49,7 +50,7 @@ const App = () => {
           } />
 
           {/* find way to differentiate for professor to have routes for them */}
-
+          <Route path="/professor" element={<ProfessorHome />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
