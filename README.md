@@ -87,4 +87,4 @@ Set up backend skeleton + designed frontend UI and worked on student view, FAQ, 
 
 ### Haroon Mohamedali ('26, hhm22)
 
-Set up PostgreSQL DB and worked on professor view
+Set up PostgreSQL DB + python connection to DB and worked on professor view
