@@ -30,6 +30,10 @@ conn_info = {
     "password": env_vars["PGPASSWORD"]
 }
 
+####################################################
+# class crud
+####################################################
+
 def add_class(abbr: str, name: str, time: str, hours: int) -> None:
     """
     Add class to db. App should verify that abbr is unique and values != None
@@ -44,6 +48,9 @@ def add_class(abbr: str, name: str, time: str, hours: int) -> None:
         sys_exit(f"Unable to connect to the database: {e}")
     except Exception as e:
         sys_exit(f"An unexpected error occurred: {e}")
+
+def read_class(classID: str):
+    pass
 
 def update_class(classID: str, name: str, time: str, hours: int):
     """
