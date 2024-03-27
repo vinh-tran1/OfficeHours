@@ -49,6 +49,8 @@ $ npm start
 
 #### Backend
 
+**Server**
+
 To run the Flask server directly on your local machine (port is env variable set to 80):
 
 ```bash
@@ -59,6 +61,11 @@ $ pip install -r requirements.txt
 # run flask app
 $ python run.py
 ```
+**Database**
+
+We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch: here are the steps:
+
+- steps here
 
 **Note: it is recommended to use a virtual environment for python**
 
@@ -81,7 +88,7 @@ Testing Results Here
 
 Set up frontend skeleton, set up react router for navigation, built UI for auth page
 
-### Vinh Tran ('25, netid)
+### Vinh Tran ('25, vt237)
 
 Set up backend skeleton + designed frontend UI and worked on student view, FAQ, and About pages
 
