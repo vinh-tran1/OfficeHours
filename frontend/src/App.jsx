@@ -20,15 +20,41 @@ import { ProfessorClass } from "./pages/Class/Professor/ProfessorClass";
 
 const App = () => {
 
-  const AUTH_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/auth";
+  const STUDENT_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/login/student";
+  const ADMIN_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/login/admin";
+  const STUDENT_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/signup/student";
+  const ADMIN_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/signup/admin";
 
   const [authenticated, setAuthenticated] = useState(false);
+  const [admin, setAdmin] = useState(false);
 
-  const handleLogin = () => {
-    axios.get(AUTH_API_URL)
+  const handleLogin = (user, onSuccess) => {
+
+    user.role === "Student" ? setAdmin(false) : setAdmin(true)
+    const loginUrl = user.role === "Student" ? STUDENT_LOGIN_API_URL : ADMIN_LOGIN_API_URL
+
+    axios.post(loginUrl, user)
     .then((response) => {
       console.log("LOGGED IN")
       setAuthenticated(true);
+      onSuccess();
+    })
+    .catch((error) => {
+      console.log(error);
+      setAuthenticated(false);
+    });
+  }
+
+  const handleSignUp = (user, onSuccess) => {
+
+    user.role === "Student" ? setAdmin(false) : setAdmin(true)
+    const signUpUrl = user.role === "Student" ? STUDENT_SIGNUP_API_URL : ADMIN_SIGNUP_API_URL;
+
+    axios.post(signUpUrl, user)
+    .then((response) => {
+      console.log("SIGNED UP")
+      setAuthenticated(true);
+      onSuccess();
     })
     .catch((error) => {
       console.log(error);
@@ -52,14 +78,21 @@ const App = () => {
       <Router>
         <Navbar handleLogout={handleLogout} authenticated={authenticated} />
         <Routes>
-          <Route path="/" element={<Navigate replace={true} to={authenticated ? "/student" : "/auth"} />} />
-          <Route path="/auth" element={<Auth handleLogin={handleLogin} />} />
-          {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/student" />} />}
+          <Route path="/" element={<Navigate replace={true} to={authenticated ? (admin ? "/professor" : "/student") : "/auth"} />} />
+          <Route path="/auth" element={<Auth handleSignUp={handleSignUp} handleLogin={handleLogin} />} />
+          {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/" />} />}
           
           {/* protected routes: only access if authenticated */}
           <Route path="/student" element={
             <ProtectedRoute>
               <StudentHome />
+            </ProtectedRoute>
+          } />
+
+          {/* protected routes: only access if authenticated */}
+          <Route path="/professor" element={
+            <ProtectedRoute>
+              <ProfessorHome />
             </ProtectedRoute>
           } />
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flex, Text, Spacer, IconButton } from '@chakra-ui/react';
-import { FaRegUserCircle } from 'react-icons/fa';
+import { MdLogout } from "react-icons/md";
 import { Link as RouterLink } from 'react-router-dom';
 
 const Navbar = ({ authenticated, handleLogout }) => {
@@ -30,7 +30,7 @@ const Navbar = ({ authenticated, handleLogout }) => {
         <IconButton
           px={4}
           aria-label="Login"
-          icon={<FaRegUserCircle size="1.5em" />}
+          icon={<MdLogout size="1.5em" />}
           fontSize={20}
           variant="ghost"
           _hover={{ background: "none", color: "#BFDCFF" }}

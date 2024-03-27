@@ -23,9 +23,81 @@ def home():
 ####################################################
 # auth routes
 ####################################################
-@app.route('/auth', methods=['GET'])
-def test_auth():
-    return jsonify({ 'response':'auth test' })
+
+# Admin Sign Up
+@app.route('/signup/admin', methods=['POST'])
+def admin_signup():
+    data = request.get_json()
+    email = data.get('email')
+    name = data.get('name')
+    password = data.get('password')
+    role = data.get('role')
+
+    if not all([email, name, password, role]):
+        return jsonify({'status': 'error', 'response': 'Missing required fields'}), 400
+    
+    if db.user_exists(email):
+        return jsonify({'status': 'error', 'response': 'Professor already exists'}), 409
+
+    try:
+        # Check if the user already exists to avoid duplicates
+        db.add_professor(email, name, password, role)
+        return jsonify({'status': 'success', 'response': 'Admin created successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed to create admin: {e}'}), 500
+
+# Admin Login
+@app.route('/login/admin', methods=['POST'])
+def admin_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'status': 'error', 'response': 'Missing email or password'}), 400
+
+    professor = db.get_professor_by_email(email)
+    if professor and db.check_password(professor['password'], password):
+        return jsonify({'status': 'success', 'response': 'Login successful', 'professor': professor})
+    else:
+        return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
+
+# Student Sign Up
+@app.route('/signup/student', methods=['POST'])
+def student_signup():
+    data = request.get_json()
+    email = data.get('email')
+    name = data.get('name')
+    password = data.get('password')
+
+    if not all([email, name, password]):
+        return jsonify({'status': 'error', 'response': 'Missing required fields'}), 400
+    
+    if db.user_exists(email):
+        return jsonify({'status': 'error', 'response': 'Student already exists'}), 409
+
+    try:
+        # Check if the user already exists to avoid duplicates
+        db.add_student(email, name, password)
+        return jsonify({'status': 'success', 'response': 'User created successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed to create user: {e}'}), 500
+
+# Student Login
+@app.route('/login/student', methods=['POST'])
+def student_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'status': 'error', 'response': 'Missing email or password'}), 400
+
+    user = db.get_student_by_email(email)
+    if user and db.check_password(user['password'], password):
+        return jsonify({'status': 'success', 'response': 'Login successful', 'user': user})
+    else:
+        return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
 ####################################################
 # student routes
