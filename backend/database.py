@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from dotenv import load_dotenv
 from psycopg2 import OperationalError, connect
 import psycopg2.extras
+import bcrypt
 
 load_dotenv()
 
@@ -49,6 +50,105 @@ def get_db_connection():
     finally:
         conn.close()
 
+####################################################
+# auth signup + login for students & admins
+####################################################
+
+def add_student(email: str, name: str, password: str) -> None:
+    """
+    Add a new student to the database.
+    """
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = """
+                INSERT INTO users (email, name, password, created_at)
+                VALUES (%s, %s, %s, NOW())
+            """
+            curs.execute(insert_stmt, (email, name, hashed_password))
+            conn.commit()
+
+def user_exists(email: str) -> bool:
+    """
+    Check if a user exists based on the email.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM users WHERE email = %s);"
+            curs.execute(select_stmt, (email,))
+            exists = curs.fetchone()[0]
+            return exists
+        
+def add_professor(email: str, name: str, password: str, role: str) -> None:
+    """
+    Add a new professor to the database.
+    """
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = """
+                INSERT INTO admins (email, name, password, role)
+                VALUES (%s, %s, %s, %s)
+            """
+            curs.execute(insert_stmt, (email, name, hashed_password, role))
+            conn.commit()
+
+def professor_exists(email: str) -> bool:
+    """
+    Check if a professor exists based on the email.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM admins WHERE email = %s);"
+            curs.execute(select_stmt, (email,))
+            exists = curs.fetchone()[0]
+            return exists
+        
+def check_password(hashed_password: str, user_password: str) -> bool:
+    """
+    Verify the provided password against the hashed password.
+    :param hashed_password: The hashed password stored in the database (hexadecimal string).
+    :param user_password: The plaintext password provided by the user.
+    :return: True if the password is correct, False otherwise.
+    """
+    # Remove the '\x' prefix and decode from hex if it's in hex format
+    if hashed_password.startswith(r'\x'):
+        hashed_password_bytes = bytes.fromhex(hashed_password[2:])
+    else:
+        hashed_password_bytes = hashed_password.encode('utf-8')
+    
+    # Encode the user-provided password to bytes
+    user_password_bytes = user_password.encode('utf-8')
+    
+    return bcrypt.checkpw(user_password_bytes, hashed_password_bytes)
+
+
+
+def get_student_by_email(email: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT id, email, name, password FROM users WHERE email = %s;"
+            curs.execute(select_stmt, (email,))
+            user = curs.fetchone()
+            if user:
+                columns = ['id', 'email', 'name', 'password']
+                return dict(zip(columns, user))
+            return None
+        
+def get_professor_by_email(email: str):
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT id, email, name, password FROM admins WHERE email = %s;"
+            curs.execute(select_stmt, (email,))
+            user = curs.fetchone()
+            if user:
+                columns = ['id', 'email', 'name', 'password', 'role']
+                return dict(zip(columns, user))
+            return None
 
 ####################################################
 # class crud
