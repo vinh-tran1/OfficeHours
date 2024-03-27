@@ -6,6 +6,7 @@ import {
   Route,
   Navigate
 } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import Navbar from "./components/Navbar/Navbar";
 import Auth from "./pages/Auth/Auth";
@@ -18,10 +19,21 @@ import { ProfessorAddClass } from "./pages/Create/Class/AddClass";
 import { ProfessorClass } from "./pages/Class/Professor/ProfessorClass";
 
 const App = () => {
+
+  const AUTH_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/auth";
+
   const [authenticated, setAuthenticated] = useState(false);
 
   const handleLogin = () => {
-    setAuthenticated(true);
+    axios.get(AUTH_API_URL)
+    .then((response) => {
+      console.log("LOGGED IN")
+      setAuthenticated(true);
+    })
+    .catch((error) => {
+      console.log(error);
+      setAuthenticated(false);
+    });
   }
 
   const handleLogout = () => {
