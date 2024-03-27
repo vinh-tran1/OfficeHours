@@ -50,54 +50,161 @@ def get_classes():
 def test_professor():
     return jsonify({ 'response':'professor test' })
 
+
+####################################################
+# class routes
+####################################################
+
 # Create class
 @app.route('/api/class', methods=['POST'])
 def post_class():
-    abbr = request.form.get('abbr')
-    name = request.form.get('name')
-    time = request.form.get('time')
-    hours = request.form.get('hours')
-    if abbr is None or name is None or time is None or hours is None:
+    data = request.get_json()
+    abbr = data.get('abbr')
+    name = data.get('name')
+    time = data.get('time')
+    time_hours = data.get('time-hours')
+    room = data.get('room')
+    if abbr is None or name is None or time is None or time_hours is None or room is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
     
+
+    time = _convert_time_to_string(time, time_hours)
     try:
         if db.class_exists(abbr):
             return jsonify({'status': 'error', 'response': 'Class already exists'}), 400
-        else:    
-            db.add_class(abbr, name, time, hours)
-            return jsonify({'status': 'success', 'response': f'Class {abbr} added'})
+        
+        db.add_class(abbr, name, time, 0)
+        db.add_class_room(abbr, room)
+        return jsonify({'status': 'success', 'response': f'Class {abbr} added'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
-# Update Class
-@app.route('/api/class/<classID>', methods=['PUT'])
-def update_class(classID):
-    if not db.class_exists(classID):
+# Read Class
+@app.route('/api/class/<class_id>', methods=['GET'])
+def read_class(class_id):
+    if not db.class_exists(class_id):
         # class does not exist
-        return jsonify({'status': 'error', 'response': f'Class {classID} does not exist'}), 400
+        return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
     
-    name = request.form.get('name')
-    time = request.form.get('time')
-    hours = request.form.get('hours')
-    if name is None and time is None and hours is None:
+    try:
+        class_info = db.read_class(class_id)
+        return jsonify({'status': 'success', 'response': class_info})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+
+# Update Class
+@app.route('/api/class/<class_id>', methods=['PUT'])
+def update_class(class_id):
+    if not db.class_exists(class_id):
+        # class does not exist
+        return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+    
+    data = request.get_json()
+    name = data.get('name')
+    time = data.get('time')
+    time_hours = data.get('time-hours')
+    hours = data.get('hours')
+    if name is None and time is None and hours is None and time_hours is None:
         return jsonify({'status': 'error', 'response': 'All update values are empty'}), 400
 
+    if time is not None and time_hours is not None:
+        time = _convert_time_to_string(time, time_hours)
+    
     try:
-        db.update_class(classID, name, time, hours)
-        return jsonify({'status': 'success', 'response': f'Class {classID} updated'})
+        db.update_class(class_id, name, time, hours)
+        return jsonify({'status': 'success', 'response': f'Class {class_id} updated'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
 # Delete Class
-@app.route('/api/class/<classID>', methods=['DELETE'])
-def remove_class(classID):
-    if not db.class_exists(classID):
+@app.route('/api/class/<class_id>', methods=['DELETE'])
+def remove_class(class_id):
+    if not db.class_exists(class_id):
         # class does not exist
-        return jsonify({'status': 'error', 'response': f'Class {classID} does not exist'}), 400
+        return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
     
     try:
-        db.delete_class(classID)
-        return jsonify({'status': 'success', 'response': f'Class {classID} deleted'})
+        db.delete_class(class_id)
+        return jsonify({'status': 'success', 'response': f'Class {class_id} deleted'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+####################################################
+# room routes
+####################################################
+    
+# Get individual room
+@app.route('/api/room/<room_id>', methods=['GET'])
+def get_room(room_id):
+    try:
+        room = db.read_room(room_id)
+        return jsonify({'status': 'success', 'response': room })
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+# Get all rooms
+@app.route('/api/room', methods=['GET'])
+def get_rooms():
+    try:
+        rooms = [r[0] for r in db.all_rooms()]
+        return jsonify({'status': 'success', 'response': rooms })
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+# Create room
+@app.route('/api/room', methods=['POST'])
+def post_room():
+    data = request.get_json()
+    name = data.get('classroom_name')
+    street = data.get('classroom_street')
+    city = data.get('classroom_city')
+    state = data.get('classroom_state')
+    zipcode = data.get('classroom_zipcode')
+    if name is None or street is None or city is None or state is None or zipcode is None:
+        return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+    
+    try:
+        if db.room_exists(name):
+            return jsonify({'status': 'error', 'response': 'Room already exists'}), 400
+        
+        if not db.zipcode_exists(zipcode):
+            db.add_zipcode(zipcode, city, state)
+        
+        db.add_room(name, street, zipcode)
+        return jsonify({'status': 'success', 'response': f'Room {name} added'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+####################################################
+# events routes
+####################################################
+# Create event
+# TODO - enter with admin ID & room ID
+@app.route('/api/events', methods=['POST'])
+def post_event():
+    data = request.get_json()
+    name = data.get('name')
+    location = data.get('location')
+    time = data.get('time')
+    start = data.get('start')
+    end = data.get('end')
+    if name is None or location is None or time is None or start is None or end is None:
+        return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+    
+    try:
+        db.add_event(name, location, time, start, end)
+        return jsonify({'status': 'success', 'response': f'Event {name} added'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+# Read Events
+# TODO - take in admin ID
+@app.route('/api/events', methods=['GET'])
+def read_events():
+    try:
+        events = db.all_events()
+        return jsonify({'status': 'success', 'response': events})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
@@ -112,3 +219,16 @@ def test_calendar(user):
         return jsonify({'response': 'Professor calendar accessed'})
     else:
         return jsonify({'error': 'Invalid user'}), 404
+
+####################################################
+# private functions
+####################################################
+
+def _convert_time_to_string(time, time_hours):
+    days_abbreviation = ''.join(['M' if day == 'monday' else
+                                'T' if day == 'tuesday' else
+                                'W' if day == 'wednesday' else
+                                'Th' if day == 'thursday' else
+                                'F' if day == 'friday' else ''
+                                for day in time])
+    return f"{days_abbreviation} {time_hours}"

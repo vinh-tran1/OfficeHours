@@ -6,4 +6,12 @@ export class Admin {
         this.email = email;
         this.hours = hours;
     }
+
+    update(name, role, email, hours) {
+        
+    }
+
+    delete() {
+
+    }
 }

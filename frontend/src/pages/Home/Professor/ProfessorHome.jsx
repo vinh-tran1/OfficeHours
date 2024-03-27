@@ -1,9 +1,7 @@
 import React from 'react';
 import {
-  Box,
   Flex,
   Grid,
-  IconButton,
   Text,
 } from '@chakra-ui/react'
 import { Admin } from '../../../classes/Admin';
@@ -12,13 +10,13 @@ import { Room } from '../../../classes/Room';
 import { ZipCode } from '../../../classes/ZipCode';
 import ClassCard from './ClassCard';
 import { Event } from '../../../classes/Event';
-import { FaPlus } from 'react-icons/fa';
 import AddCard from './AddCard';
 
 const ProfessorHome = () => {
 
+  // TODO - pull classes && office hours
   const admin = new Admin("id", "Alan Weide", "Professor", "alan.weide@yale.edu")
-  const hillhouse = new Room("id", "DL 419", "419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT"));
+  const hillhouse = new Room("id", "DL 419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT"));
   const monday = new Event("id", hillhouse, "short description", "Monday", "4:00pm", "5:00pm");
   const tuesday = new Event("id", hillhouse, "short description", "Tuesday", "4:00pm", "5:00pm")
   const classes = [

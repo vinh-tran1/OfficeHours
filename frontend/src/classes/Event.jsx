@@ -7,4 +7,12 @@ export class Event {
         this.start = start;
         this.end = end;
     }
+
+    update(description, day, start, end) {
+
+    }
+
+    delete() {
+
+    }
 }

@@ -14,6 +14,8 @@ import About from "./pages/About/About";
 import FAQ from "./pages/FAQ/FAQ";
 import Calendar from "./pages/Calendar/Calendar";
 import ProfessorHome from "./pages/Home/Professor/ProfessorHome";
+import { ProfessorAddClass } from "./pages/Create/Class/AddClass";
+import { ProfessorClass } from "./pages/Class/Professor/ProfessorClass";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -51,6 +53,8 @@ const App = () => {
 
           {/* find way to differentiate for professor to have routes for them */}
           <Route path="/professor" element={<ProfessorHome />} />
+          <Route path="/professor/add" element={<ProfessorAddClass />} />
+          <Route path="/professor/:id" element={<ProfessorClass />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />

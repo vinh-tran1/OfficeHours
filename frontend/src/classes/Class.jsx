@@ -6,4 +6,13 @@ export class Class {
         this.time = time;
         this.hours = hours;
     }
+
+    update(name, time, hours) {
+
+    }
+
+    delete() {
+
+    }
+
 }
