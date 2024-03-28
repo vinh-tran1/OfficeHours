@@ -7,7 +7,11 @@ import {
 } from '@chakra-ui/react';
 import { FaTrash } from 'react-icons/fa';
 
-const ClassCard = ({ title, name, hours }) => {
+const ClassCard = ({ abbr, name, hours, time, handleDeleteClass }) => {
+    const handleRemoveClass = () => {
+        handleDeleteClass(name)
+    }
+
     return (
         <Box
             borderWidth="2px"
@@ -20,13 +24,15 @@ const ClassCard = ({ title, name, hours }) => {
             position="relative"
         >
             <Flex justify="space-between" align="center">
-                <Text fontSize="2xl" fontWeight="bold">{title}</Text>
+                <Text fontSize="2xl" fontWeight="bold">{abbr}</Text>
                 <IconButton 
                     icon={<FaTrash size="20" color="black" />}
                     variant="ghost"
+                    onClick={handleRemoveClass}
                 />
             </Flex>
-            <Text fontSize="l" fontWeight="semibold" color="gray" mb={20}>{name}</Text>
+            <Text fontSize="l" fontWeight="semibold" color="#666666" mb={2}>{name}</Text>
+            <Text fontSize="l" color="gray" mb={20}>{time}</Text>
             
             {/* Banner at the bottom of the card */}
             <Box position="absolute" bottom="0" left="0" right="0" bg="#BFDCFF" px={4} py={3}>

@@ -20,10 +20,10 @@ import { ProfessorClass } from "./pages/Class/Professor/ProfessorClass";
 
 const App = () => {
 
-  const STUDENT_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/login/student";
-  const ADMIN_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/login/admin";
-  const STUDENT_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/signup/student";
-  const ADMIN_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/signup/admin";
+  const STUDENT_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/login/student";
+  const ADMIN_LOGIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/login/admin";
+  const STUDENT_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/signup/student";
+  const ADMIN_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/signup/admin";
 
   const [authenticated, setAuthenticated] = useState(false);
   const [admin, setAdmin] = useState(false);
@@ -66,6 +66,7 @@ const App = () => {
     setAuthenticated(false);
   }
 
+  // protected routes: only access if authenticated
   const ProtectedRoute = ({ children }) => {
     if (!authenticated) {
       return <Navigate replace={true} to="/auth" />;
@@ -82,27 +83,41 @@ const App = () => {
           <Route path="/auth" element={<Auth handleSignUp={handleSignUp} handleLogin={handleLogin} />} />
           {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/" />} />}
           
-          {/* protected routes: only access if authenticated */}
           <Route path="/student" element={
             <ProtectedRoute>
               <StudentHome />
             </ProtectedRoute>
           } />
 
-          {/* protected routes: only access if authenticated */}
           <Route path="/professor" element={
             <ProtectedRoute>
               <ProfessorHome />
             </ProtectedRoute>
           } />
 
-          {/* find way to differentiate for professor to have routes for them */}
-          <Route path="/professor" element={<ProfessorHome />} />
-          <Route path="/professor/add" element={<ProfessorAddClass />} />
-          <Route path="/professor/:id" element={<ProfessorClass />} />
+          <Route path="/professor" element={
+            <ProtectedRoute>
+              <ProfessorHome />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/professor/add" element={
+            <ProtectedRoute>
+              <ProfessorAddClass />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/professor/:id" element={
+            <ProtectedRoute>
+              <ProfessorClass />
+            </ProtectedRoute>
+          } />
+
+
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
+          
         </Routes>
       </Router>
     </ChakraProvider>

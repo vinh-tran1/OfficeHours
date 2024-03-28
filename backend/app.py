@@ -14,18 +14,11 @@ app = Flask(__name__, template_folder='/')
 CORS(app)
 
 ####################################################
-# home routes
-####################################################
-@app.route('/', methods=['GET'])
-def home():
-    return jsonify({ 'response':'home test' })
-
-####################################################
 # auth routes
 ####################################################
 
 # Admin Sign Up
-@app.route('/signup/admin', methods=['POST'])
+@app.route('/api/signup/admin', methods=['POST'])
 def admin_signup():
     data = request.get_json()
     email = data.get('email')
@@ -36,7 +29,7 @@ def admin_signup():
     if not all([email, name, password, role]):
         return jsonify({'status': 'error', 'response': 'Missing required fields'}), 400
     
-    if db.user_exists(email):
+    if db.professor_exists(email):
         return jsonify({'status': 'error', 'response': 'Professor already exists'}), 409
 
     try:
@@ -47,7 +40,7 @@ def admin_signup():
         return jsonify({'status': 'error', 'response': f'Failed to create admin: {e}'}), 500
 
 # Admin Login
-@app.route('/login/admin', methods=['POST'])
+@app.route('/api/login/admin', methods=['POST'])
 def admin_login():
     data = request.get_json()
     email = data.get('email')
@@ -63,7 +56,7 @@ def admin_login():
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
 # Student Sign Up
-@app.route('/signup/student', methods=['POST'])
+@app.route('/api/signup/student', methods=['POST'])
 def student_signup():
     data = request.get_json()
     email = data.get('email')
@@ -84,7 +77,7 @@ def student_signup():
         return jsonify({'status': 'error', 'response': f'Failed to create user: {e}'}), 500
 
 # Student Login
-@app.route('/login/student', methods=['POST'])
+@app.route('/api/login/student', methods=['POST'])
 def student_login():
     data = request.get_json()
     email = data.get('email')
@@ -106,22 +99,14 @@ def student_login():
 def get_classes():
     # dummy data
     classes = [
-        { 'title': 'CPSC 419', 'name': 'Full Stack', 'hours': '7' },
-        { 'title': 'CPSC 323', 'name': 'Intro to Systems', 'hours': '20' },
-        { 'title': 'CPSC 365', 'name': 'Algorithms', 'hours': '12' },
-        { 'title': 'CPSC 223', 'name': 'Data Structures', 'hours': '4' },
-        { 'title': 'CPSC 429', 'name': 'Software Engineering', 'hours': '2' }
+        { 'abbr': 'CPSC 419', 'name': 'Full Stack', 'hours': '7', 'time': 'MW 1:00pm - 2:15pm' },
+        { 'abbr': 'CPSC 323', 'name': 'Intro to Systems', 'hours': '20', 'time': 'MW 1:00pm - 2:15pm' },
+        { 'abbr': 'CPSC 365', 'name': 'Algorithms', 'hours': '12', 'time': 'MW 1:00pm - 2:15pm' },
+        { 'abbr': 'CPSC 223', 'name': 'Data Structures', 'hours': '4', 'time': 'MW 1:00pm - 2:15pm' },
+        { 'abbr': 'CPSC 429', 'name': 'Software Engineering', 'hours': '2', 'time': 'MW 1:00pm - 2:15pm' }
     ]
     
     return jsonify(classes)
-
-####################################################
-# professor routes
-####################################################
-@app.route('/professor', methods=['GET'])
-def test_professor():
-    return jsonify({ 'response':'professor test' })
-
 
 ####################################################
 # class routes
@@ -199,6 +184,80 @@ def remove_class(class_id):
     try:
         db.delete_class(class_id)
         return jsonify({'status': 'success', 'response': f'Class {class_id} deleted'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+####################################################
+# user class routes
+####################################################
+@app.route('/api/user/<user_id>', methods=['GET'])
+def get_user_classes(user_id):
+    try:
+        class_info = db.read_user_classes(user_id)
+        return jsonify({'status': 'success', 'response': class_info})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+    
+
+@app.route('/api/user/<user_id>/add-class', methods=['POST'])
+def add_user_class(user_id):
+    data = request.json()
+
+    # need to see what data is to correctly access it
+
+    class_id = data.get('name')
+    # check for class exists, user already taking
+    if not class_id:
+         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+       
+    try:
+        if not db.class_exists('class_name'):
+         return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+
+        # user is already taking this class
+        if db.user_class_exists(user_id, class_id):
+            return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_name}'}), 400
+            
+        db.add_user_class(user_id, class_id)
+
+        # retrieve new classes
+        new_class = db.read_class(class_id)
+
+        # return new class to render on frontend
+        return jsonify({
+            'status': 'success', 
+            'response': {
+                'message': f'Class {class_id} added',
+                'newClass': new_class
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+@app.route('/api/user/<user_id>/delete-class', methods=['DELETE'])
+def remove_user_class(user_id, class_id):
+    if not db.class_exists(class_id):
+        return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+
+    if db.user_class_exists(user_id, class_id):
+        return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_id}'}), 400
+    
+    try:
+        db.delete_user_class(user_id, class_id)
+
+        # retrieve deleted classes
+        deleted_class = db.read_class(class_id)
+
+        # return deleted class to render on frontend
+        return jsonify({
+            'status': 'success', 
+            'response': {
+                'message': f'Class {class_id} deleted from user {user_id}',
+                'deletedClass': deleted_class
+            }
+        })
+    
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 

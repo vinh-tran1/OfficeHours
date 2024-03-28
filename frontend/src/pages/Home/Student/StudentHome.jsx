@@ -1,45 +1,61 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
   Flex,
   Grid,
   Text,
-  VStack,
-  Input,
-  InputGroup,
-  InputLeftElement,
 } from '@chakra-ui/react';
-import { FaSearch } from 'react-icons/fa';
 import axios from 'axios';
 import ClassCard from './ClassCard';
+import AddClass from "./AddClass";
 
 const StudentHome = () => {
-  
-  const API_URL = process.env.REACT_APP_API_URL_LOCAL + "/student";
+  const user_id = 1;
+  const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/student';
+  const POST_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/add-class';
+  const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/delete-class'
   const [classes, setClasses] = useState([]);
-  const [addedClass, setAddedClass] = useState("");
+  // const [addedClass, setAddedClass] = useState("");
 
   // dummy student data
   const student = {role: "Student", name: "Vinh"}
 
   // get classes
   useEffect(() => {
-    axios.get(API_URL)
+    axios.get(GET_API_URL)
     .then((response) => {
       setClasses(response.data);
     })
     .catch((error) => {
       console.log(error);
     });
-  }, [])
+  }, [classes])
 
-  // const handleAddClass = async () => {
-  //   console.log(addedClass)
-  // }
+  const handleAddClass = (addedClass) => {
+    axios.post(POST_API_URL, addedClass)
+    .then((response) => {
+      setClasses(currentClasses => [...currentClasses, response.newClass])
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  }
 
-  // const handledeleteClass = async () => {
-  //   console.log("delete")
-  // }
+  const handleDeleteClass = (class_id) => { 
+    const payload = {
+      user_id: user_id,
+      class_id: class_id
+    };
+
+    axios.delete(DELETE_API_URL, {data: payload})
+    .then((response) => {
+      const deletedClass = response.data.deletedClass;
+      const updatedClasses = classes.filter(classItem => classItem.class_id !== deletedClass.class_id);
+      setClasses(updatedClasses)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  }
 
   return (
     <Flex px={10}>
@@ -53,43 +69,21 @@ const StudentHome = () => {
           {classes.length === 0 && <Text fontSize={20}>No classes yet...</Text>}
 
           <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
-            {classes.map((classInfo, index) => (
-              <ClassCard key={index} title={classInfo.title} name={classInfo.name} hours={classInfo.hours} />
+            {classes && classes.map((classInfo, index) => (
+              <ClassCard 
+                key={index} 
+                abbr={classInfo.abbr} 
+                name={classInfo.name} 
+                hours={classInfo.hours} 
+                time={classInfo.time}
+                handleDeleteClass={handleDeleteClass}
+              />
             ))}
           </Grid>
 
           {/* class search */}
-          <Box            
-            p={4}
-            ml={{ lg: 10 }}
-            mt={{ base: 6, lg: 0 }}
-            borderWidth="2px"
-            borderRadius="lg"
-            borderColor="#4073AF"
-            w={{ base: 'full', lg: 'sm' }}
-            h={500}
-            bg="#F3F8FF"
-            boxShadow="lg"
-            flex="1"
-          >
-            <VStack align="stretch">
-              <Text fontSize="2xl" fontWeight="bold" mb={4}>Add Class</Text>
-              <InputGroup borderWidth="1px" borderRadius="md" bg="white">
-                <InputLeftElement pointerEvents="none">
-                  <FaSearch size="20" color="black" />
-                </InputLeftElement>
-                <Input 
-                  type="text" 
-                  placeholder="search for a class"
-                  onChange={(event) => setAddedClass(event.target.value)} 
-                />
-              </InputGroup>
+          <AddClass handleAddClass={handleAddClass}/>
 
-              <Text>temporary: {addedClass}</Text>
-              {/* dropdown list could go here */}
-
-            </VStack>
-          </Box>
         </Flex>
       </Flex>
     </Flex>

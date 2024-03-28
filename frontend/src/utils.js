@@ -8,7 +8,7 @@ export function postData(url, values, actions, toast, onSuccess) {
     })
         .then(response => response.json())
         .then(data => {
-            if (data['status'] == 'success') {
+            if (data['status'] === 'success') {
                 onSuccess()
             }
             toast({
@@ -38,7 +38,7 @@ export function getData(url, toast, onSuccess, onError) {
     })
         .then(response => response.json())
         .then(data => {
-            if (data['status'] == 'success') {
+            if (data['status'] === 'success') {
                 onSuccess(data['response'])
                 return;
             }
