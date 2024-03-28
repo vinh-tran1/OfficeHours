@@ -12,7 +12,7 @@ import { Field, Form, Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { ClassInput } from '../Input';
 import { ClassCheckBox } from '../CheckBox';
-import { RoomModal } from './RoomModal';
+import { RoomModal } from '../RoomModal';
 import { getData, postData, validate } from '../../../utils';
 import { useEffect, useState } from 'react';
 

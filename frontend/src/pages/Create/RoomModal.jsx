@@ -10,9 +10,9 @@ import {
     ModalOverlay,
     useToast
 } from "@chakra-ui/react"
-import { ClassInput } from "../Input"
+import { ClassInput } from "./Input"
 import { Form, Formik, useFormikContext } from 'formik';
-import { postData } from "../../../utils";
+import { postData } from "../../utils";
 import { useRef, useState } from "react";
 
 export const RoomModal = ({ isOpen, onClose, validate }) => {

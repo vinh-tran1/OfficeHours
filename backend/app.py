@@ -56,6 +56,7 @@ def test_professor():
 ####################################################
 
 # Create class
+# TODO - include admin id to attach to class
 @app.route('/api/class', methods=['POST'])
 def post_class():
     data = request.get_json()
@@ -180,7 +181,7 @@ def post_room():
 # events routes
 ####################################################
 # Create event
-# TODO - enter with admin ID & room ID
+# TODO - enter with admin ID & room ID & class ID
 @app.route('/api/events', methods=['POST'])
 def post_event():
     data = request.get_json()
