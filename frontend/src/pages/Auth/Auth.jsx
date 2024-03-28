@@ -26,14 +26,14 @@ const Auth = ({ handleLogin, handleSignUp }) => {
 
     return (
         <Flex flexDir={"row"}>
-            <Flex ml={20} mt={10} flexDir={"column"}>
+            <Flex ml={40} mt={32} flexDir={"column"}>
                 <Flex>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#4988C1"}>O</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#063763"}>ffice</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#4988C1"}>(H)</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#063763"}>ours</Heading>
                 </Flex>
-                <Flex flexDir={"column"} mb={2}>
+                <Flex flexDir={"column"} mb={10}>
                     <Text fontSize={18} fontWeight={600} color={"#063763"} fontStyle={"italic"}>Making Office Hours Simple</Text>
                     <Text fontSize={18} fontWeight={600} color={"#063763"} fontStyle={"italic"}>Add, view, and edit office hours in only O(H) time!</Text>
                 </Flex>
