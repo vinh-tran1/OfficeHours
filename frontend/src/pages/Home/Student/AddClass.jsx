@@ -23,7 +23,7 @@ const AddClass = ({ handleAddClass }) => {
     return (
         <Box            
             p={4}
-            ml={{ lg: 10 }}
+            // ml={{ lg: 10 }}
             mt={{ base: 6, lg: 0 }}
             borderWidth="2px"
             borderRadius="lg"
@@ -35,7 +35,6 @@ const AddClass = ({ handleAddClass }) => {
             flex="1"
         >
             <VStack as="form" onSubmit={handleUserAddClass} align="stretch" spacing={4} p={4} h={475}>
-                <Text fontSize="2xl" fontWeight="bold" mb={4}>Add Class</Text>
                 <InputGroup borderWidth="1px" borderRadius="md" bg="white">
                     <InputLeftElement pointerEvents="none">
                         <FaSearch size="20" color="black" />

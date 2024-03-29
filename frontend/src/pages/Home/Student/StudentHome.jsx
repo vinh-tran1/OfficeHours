@@ -29,9 +29,6 @@ const StudentHome = () => {
     setUpdatedClass(!updatedClass);
   }
 
-  // dummy data
-  const student = {role: 'student', name: 'Vinh Tran'}
-
   // get classes
   useEffect(() => {
     setIsLoading(true);
@@ -82,45 +79,56 @@ const StudentHome = () => {
   }
 
   return (
-    <Flex px={10}>
+    <Flex px={10} w="full">
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
-        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({student.role}) {student.name}</Text>
-        <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
+        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({userInfo.role}) {userInfo.name}</Text>
+        
+        <Flex direction={{ base: 'column', md: 'row' }} w="full" justify="space-between" align="start">
+          <Flex direction="column" flex={1} mr={{ md: 4 }}>
+            <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
 
-        {isLoading ? (
-          // spinner for loading
-          <Flex justify="center" align="center" height="100px">
-            <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl"/>
-          </Flex>
-        ) : (
-          // no classes
-          <Flex direction={{ base: 'column', lg: 'row' }} w="full">
-            {classes.length === 0 ? (
-              <Flex w="full" flex="3">
-                <Text fontSize={20} textColor="#063763">No classes yet...</Text>
+            {isLoading ? (
+              // spinner for loading
+              <Flex justify="center" align="center" height="100px">
+                <Spinner thickness="4px" speed="0.75s" emptyColor="gray.200" color="blue.500" size="xl"/>
               </Flex>
             ) : (
-              // grid of classes
-              <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
-                {classes.length > 0 && classes.map((classInfo, index) => (
-                  classInfo && 
-                  <ClassCard 
-                    key={index} 
-                    abbr={classInfo.abbr} 
-                    name={classInfo.name} 
-                    hours={classInfo.hours} 
-                    time={classInfo.time}
-                    handleDeleteClass={handleDeleteClass}
-                  />
-                ))}
-              </Grid>
+              // no classes
+              <Flex direction={{ base: 'column', lg: 'row' }} w="full">
+                {classes.length === 0 ? (
+                  <Flex w="full" flex="3">
+                    <Text fontSize={20} textColor="#063763">No classes yet...</Text>
+                  </Flex>
+                ) : (
+                  // grid of classes
+                  <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
+                    {classes.length > 0 && classes.map((classInfo, index) => (
+                      classInfo && 
+                      <ClassCard 
+                        key={index} 
+                        abbr={classInfo.abbr} 
+                        name={classInfo.name} 
+                        hours={classInfo.hours} 
+                        time={classInfo.time}
+                        handleDeleteClass={handleDeleteClass}
+                      />
+                    ))}
+                  </Grid>
+                )}
+              
+              </Flex>
             )}
 
-          {/* class search */}
-            <AddClass handleAddClass={handleAddClass} />
           </Flex>
-        )}
+
+          {/* class search */}
+          <Flex direction="column" justifyContent="center" alignItems="center" minWidth="240px" ml={8}>
+              <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Add Class</Text>
+              <AddClass handleAddClass={handleAddClass} />
+          </Flex>
+
+        </Flex>
       </Flex>
     </Flex>
   );
