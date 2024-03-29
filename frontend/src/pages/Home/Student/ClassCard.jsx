@@ -9,7 +9,7 @@ import { FaTrash } from 'react-icons/fa';
 
 const ClassCard = ({ abbr, name, hours, time, handleDeleteClass }) => {
     const handleRemoveClass = () => {
-        handleDeleteClass(name)
+        handleDeleteClass(abbr)
     }
 
     return (
@@ -19,6 +19,7 @@ const ClassCard = ({ abbr, name, hours, time, handleDeleteClass }) => {
             borderColor="#4073AF"
             overflow="hidden"
             p={4}
+            h={200}
             boxShadow="lg"
             bg="#f4f4f4"
             position="relative"
