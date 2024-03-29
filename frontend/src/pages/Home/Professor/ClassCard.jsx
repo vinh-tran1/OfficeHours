@@ -1,8 +1,10 @@
 import React from "react";
 import { Box, Flex, Text, IconButton, Divider } from "@chakra-ui/react";
-import { FaEdit, FaRegArrowAltCircleRight } from "react-icons/fa";
+import { FaEdit, FaRegArrowAltCircleRight, FaTrash } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
 const ClassCard = ({ cls, events, ta }) => {
+  const navigate = useNavigate();;
   return (
     <Box
       borderWidth="2px"
@@ -13,13 +15,20 @@ const ClassCard = ({ cls, events, ta }) => {
       boxShadow="lg"
       bg="#f4f4f4"
       position="relative"
+      onClick={() => navigate("/professor/"+ cls.abbr)}
     >
       {/* Class info */}
       <Flex justify="space-between" align="center">
         <Text fontSize="2xl" fontWeight="bold">
           {cls.abbr}
         </Text>
-        <IconButton icon={<FaEdit size="20" color="black" />} variant="ghost" />
+        <Box>
+          {/* TODO - UPDATE */}
+          <IconButton icon={<FaEdit size="20" color="black" />} variant="ghost" />
+          {/* TODO - DELETE */}
+          <IconButton icon={<FaTrash size="20" color="black" />} variant="ghost" />
+        </Box>
+
       </Flex>
       <Text fontSize="l" fontWeight="semibold" color="gray">
         {cls.name}
@@ -35,7 +44,6 @@ const ClassCard = ({ cls, events, ta }) => {
         <Text fontSize="xl" fontWeight="semibold" color="black">
           My Office Hours
         </Text>
-        <IconButton icon={<FaEdit size="20" color="black" />} variant="ghost" />
       </Flex>
       {/* <Text fontSize="l" fontWeight="semibold" color="gray">Class: {cls.time}</Text> */}
       {events.map((event, index) => (
@@ -49,16 +57,15 @@ const ClassCard = ({ cls, events, ta }) => {
         </Box>
       ))}
 
-      <Divider color="black" mb={3} mt={3} />
+      {/* <Divider color="black" mb={3} mt={3} /> */}
 
-      {/* All TAs/ULAs in class */}
+      {/* All TAs/ULAs in class
       <Flex justify="space-between" align="center">
         <Text fontSize="xl" fontWeight="semibold" color="black">
           TAs/ULAs
         </Text>
-        <IconButton icon={<FaEdit size="20" color="black" />} variant="ghost" />
-      </Flex>
-      {ta.map((assistant, index) => (
+      </Flex> */}
+      {/* {ta.map((assistant, index) => (
         <Box key={index}>
           <Text fontSize="l" fontWeight="semibold" color="black">
             {assistant.name}
@@ -67,7 +74,7 @@ const ClassCard = ({ cls, events, ta }) => {
             Office hours: {assistant.hours}
           </Text>
         </Box>
-      ))}
+      ))} */}
 
       {/* For spacing */}
       <Box mb={20}></Box>

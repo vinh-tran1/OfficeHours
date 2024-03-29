@@ -16,13 +16,14 @@ export const ProfessorClass = () => {
 
     useEffect(() => {
         getData(API_URL +  "/class/" + id, toast, setClass, setError)
-        getData(API_URL + "/events", toast, setEvents, setEventError)
+        // TODO 
+        getData(API_URL + "/events", toast, setEvents, setEventError) 
       }, [])
 
     function createEvent(values, actions) {
         // test with admin 
         values.push({"admin": "UID",}) 
-        postData(API_URL + "/events", values, actions, toast, () => {getData(API_URL + "/events", toast, setEvents, setEventError)});
+        postData(API_URL + "/events", values, actions, toast, () => {getData(API_URL + "/events", toast, setEvents, setEventError)}); // TODO 
     }
 
     return (

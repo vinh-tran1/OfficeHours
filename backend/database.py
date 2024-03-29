@@ -174,6 +174,16 @@ def add_class_room(abbr: str, room: str) -> None:
             curs.execute(insert_stmt, (abbr, room))
             conn.commit()
 
+def add_class_admin(abbr: str, admin_id: int) -> None:
+    """
+    Add link between class and admin.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO class_admins (class_id, admin_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (abbr, admin_id))
+            conn.commit()
+
 def read_class(class_id: str) -> tuple:
     """
     read a class given class_id
@@ -186,12 +196,34 @@ def read_class(class_id: str) -> tuple:
                 LEFT JOIN class_rooms cr ON c.abbr = cr.class_id
                 LEFT JOIN rooms r ON r.name = cr.room_id
                 WHERE c.abbr = %s
+                LIMIT 1
             """
             curs.execute(select_stmt, (class_id, ))
             row = curs.fetchone()
             columns = [desc[0] for desc in curs.description]
 
             return dict(zip(columns, row)) if row else {}
+
+def read_all_classes(admin_id: str) -> list:
+    """
+    read all classes
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = """
+                SELECT c.abbr, c.name, c.hours, c.time, r.name AS room, r.street, r.zipcode
+                FROM class c
+                LEFT JOIN class_rooms cr ON c.abbr = cr.class_id
+                LEFT JOIN rooms r ON r.name = cr.room_id
+                LEFT JOIN class_admins ca ON c.abbr = ca.class_id
+                LEFT JOIN admins a ON a.id = ca.admin_id
+                WHERE a.id = %s
+                GROUP BY c.abbr, r.name
+                LIMIT 1000
+            """
+            curs.execute(select_stmt, (admin_id, ))
+            rows = curs.fetchall()
+            return rows
 
 def update_class(class_id: str, name: str, time: str, hours: int) -> None:
     """
@@ -210,6 +242,15 @@ def delete_class(class_id: str) -> None:
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
+            delete_class_rooms = "DELETE FROM class_rooms WHERE class_id = %s"
+            curs.execute(delete_class_rooms, (class_id, ))
+
+            delete_class_events = "DELETE FROM class_events WHERE class_id = %s"
+            curs.execute(delete_class_events, (class_id, ))
+
+            delete_class_admins = "DELETE FROM class_admins WHERE class_id = %s"
+            curs.execute(delete_class_admins, (class_id, ))
+
             delete_stmt = "DELETE FROM class WHERE abbr = %s"
             curs.execute(delete_stmt, (class_id, ))
             conn.commit()
@@ -224,6 +265,18 @@ def class_exists(abbr: str) -> bool:
             curs.execute(select_stmt, (abbr, ))
             exists = curs.fetchone()[0]
             return exists
+
+def class_verify_ownership(class_id: str, admin_id: str) -> bool:
+    """
+    Check if admin owns class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM class_admins WHERE class_id = %s AND admin_id = %s);"
+            curs.execute(select_stmt, (class_id, admin_id))
+            exists = curs.fetchone()[0]
+            return exists
+
 
 ####################################################
 # room crud
@@ -289,8 +342,6 @@ def add_zipcode(zipcode: int, city: str, state: str) -> None:
             curs.execute(insert_stmt, (zipcode, city, state))
             conn.commit()
     
-
-
 def zipcode_exists(zipcode: str) -> bool:
     """
     Check if zipcode exists
@@ -305,30 +356,102 @@ def zipcode_exists(zipcode: str) -> bool:
 ####################################################
 # events crud
 ####################################################
-def add_event(name: str, location: str, time: str, start: str, end: str) -> None:
+def add_event(name: str, location: str, time: str, start: str, end: str) -> int:
     """
     Add event to db.
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            insert_stmt = "INSERT INTO events (name, location, time, start, \"end\") VALUES (%s, %s, %s, %s, %s)"
+            insert_stmt = """INSERT INTO events (name, location, time, start, \"end\")
+                             VALUES (%s, %s, %s, %s, %s)
+                             RETURNING id"""
             curs.execute(insert_stmt, (name, location, time, start, end))
+            event_id = curs.fetchone()[0] 
+            conn.commit()
+            return event_id
+
+def add_event_room(event_id: int, room: str) -> None:
+    """
+    Add link between event and room.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO event_rooms (event_id, room_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (event_id, room))
             conn.commit()
 
-# TODO - make it to where you take in admin ID
-def all_events() -> None: 
+def add_event_admin(event_id: int, admin_id: int) -> None:
+    """
+    Add link between event and admin.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO event_admins (event_id, admin_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (event_id, admin_id))
+            conn.commit()
+
+def all_events(admin_id: str) -> None: 
     """
     Return all events
     """
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
-            select_stmt = "SELECT e.id, e.name, e.location, e.time, e.start, e.end FROM events e ORDER BY e.name LIMIT 1000"
-            curs.execute(select_stmt, )
+            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end 
+                             FROM events e
+                             LEFT JOIN event_admins ea ON ea.event_id = e.id
+                             LEFT JOIN admins a ON ea.admin_id = a.id
+                             WHERE a.id = %s
+                             GROUP BY e.id
+                             ORDER BY e.name
+                             LIMIT 1000
+                            """
+            curs.execute(select_stmt, (admin_id, ))
             sql_rows = curs.fetchall()
             rows = []
             for row in sql_rows:
                 rows.append(dict(row))
             return rows
+
+def delete_event(event_id: int) -> None:
+    """
+    Delete event where event = event_id
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            delete_event_rooms = "DELETE FROM event_rooms WHERE event_id = %s"
+            curs.execute(delete_event_rooms, (event_id, ))
+
+            delete_class_events = "DELETE FROM class_events WHERE event_id = %s"
+            curs.execute(delete_class_events, (event_id, ))
+
+            delete_event_admins = "DELETE FROM event_admins WHERE event_id = %s"
+            curs.execute(delete_event_admins, (event_id, ))
+            
+            delete_stmt = "DELETE FROM events WHERE id = %s"
+            curs.execute(delete_stmt, (event_id, ))
+            conn.commit()
+
+def event_exists(event_id: int) -> bool:
+    """
+    Check if event exists
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM events WHERE id = %s);"
+            curs.execute(select_stmt, (event_id, ))
+            exists = curs.fetchone()[0]
+            return exists
+
+def event_verify_ownership(event_id: str, admin_id: str) -> bool:
+    """
+    Check if admin owns event
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM event_admins WHERE event_id = %s AND admin_id = %s);"
+            curs.execute(select_stmt, (event_id, admin_id))
+            exists = curs.fetchone()[0]
+            return exists
 
 ####################################################
 # private functions

@@ -4,7 +4,7 @@ import { FaPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const AddCard = () => {
-    const navigate = useNavigate();;
+    const navigate = useNavigate();
     return (
         <Box
             borderWidth="2px"

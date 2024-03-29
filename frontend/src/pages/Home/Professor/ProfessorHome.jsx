@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Flex,
   Grid,
@@ -11,10 +11,13 @@ import { ZipCode } from '../../../classes/ZipCode';
 import ClassCard from './ClassCard';
 import { Event } from '../../../classes/Event';
 import AddCard from './AddCard';
+import { getData } from '../../../utils';
 
 const ProfessorHome = () => {
 
-  // TODO - pull classes && office hours
+  // TODO - pull classes && office hours && admin
+  const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/classes";
+  const ROOM_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/room";
   const admin = new Admin("id", "Alan Weide", "Professor", "alan.weide@yale.edu")
   const hillhouse = new Room("id", "DL 419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT"));
   const monday = new Event("id", hillhouse, "short description", "Monday", "4:00pm", "5:00pm");
@@ -23,6 +26,11 @@ const ProfessorHome = () => {
     { "class": new Class("CPSC 419", "Full Stack", hillhouse, "MW 1:00pm-2:15pm", '7'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2")]},
     { "class": new Class("CPSC 223", "Data Structures", hillhouse, "TTh 2:30pm-5:15pm", '8'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2"), new Admin("id", "Person 3", "ULA", "person3@gmail.com", "1")]}
   ];
+
+
+  // useEffect(() => {
+  //   getData(CLASS_API_URL, toast, setClasses)
+  // }, [isOpen])
 
   return (
     <Flex px={10}>

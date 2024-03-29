@@ -11,7 +11,7 @@ import {
     useToast
 } from "@chakra-ui/react"
 import { ClassInput } from "./Input"
-import { Form, Formik, useFormikContext } from 'formik';
+import { Form, Formik } from 'formik';
 import { postData } from "../../utils";
 import { useRef, useState } from "react";
 
