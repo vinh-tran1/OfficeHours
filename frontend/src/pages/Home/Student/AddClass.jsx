@@ -16,6 +16,8 @@ const AddClass = ({ handleAddClass }) => {
 
     const handleUserAddClass = () => {
         handleAddClass(addedClass);
+        setAddedClass("");
+        
     }
 
     return (
@@ -40,7 +42,8 @@ const AddClass = ({ handleAddClass }) => {
                     </InputLeftElement>
                     <Input 
                         type="text" 
-                        placeholder="search for a class"
+                        placeholder="search for a class e.g. CPSC 419"
+                        value={addedClass}
                         onChange={(event) => setAddedClass(event.target.value)} 
                     />
                 </InputGroup>

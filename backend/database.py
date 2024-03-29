@@ -254,7 +254,7 @@ def read_user_classes(user_id: int) -> list:
             curs.execute(select_stmt, (user_id,))
             rows = curs.fetchall()
             columns = [desc[0] for desc in curs.description]
-            classes = [dict(zip(columns, row)) for row in rows] if rows else {}
+            classes = [dict(zip(columns, row)) for row in rows] if rows else []
 
             return classes
         

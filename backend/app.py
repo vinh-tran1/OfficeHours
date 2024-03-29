@@ -93,22 +93,6 @@ def student_login():
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
 ####################################################
-# student routes
-####################################################
-@app.route('/student', methods=['GET'])
-def get_classes():
-    # dummy data
-    classes = [
-        { 'abbr': 'CPSC 419', 'name': 'Full Stack', 'hours': '7', 'time': 'MW 1:00pm - 2:15pm' },
-        { 'abbr': 'CPSC 323', 'name': 'Intro to Systems', 'hours': '20', 'time': 'MW 1:00pm - 2:15pm' },
-        { 'abbr': 'CPSC 365', 'name': 'Algorithms', 'hours': '12', 'time': 'MW 1:00pm - 2:15pm' },
-        { 'abbr': 'CPSC 223', 'name': 'Data Structures', 'hours': '4', 'time': 'MW 1:00pm - 2:15pm' },
-        { 'abbr': 'CPSC 429', 'name': 'Software Engineering', 'hours': '2', 'time': 'MW 1:00pm - 2:15pm' }
-    ]
-    
-    return jsonify(classes)
-
-####################################################
 # class routes
 ####################################################
 
@@ -189,7 +173,8 @@ def remove_class(class_id):
 
 ####################################################
 # user class routes
-####################################################
+####################################################  
+#  GET user's classes
 @app.route('/api/user/<user_id>', methods=['GET'])
 def get_user_classes(user_id):
     try:
@@ -198,25 +183,23 @@ def get_user_classes(user_id):
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
     
-
+# POST add class for user
 @app.route('/api/user/<user_id>/add-class', methods=['POST'])
 def add_user_class(user_id):
-    data = request.json()
+    data = request.get_json()
+    class_id = data.get('abbr')
 
-    # need to see what data is to correctly access it
-
-    class_id = data.get('name')
     # check for class exists, user already taking
     if not class_id:
          return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
        
     try:
-        if not db.class_exists('class_name'):
-         return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+        if not db.class_exists(class_id):
+            return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
 
         # user is already taking this class
         if db.user_class_exists(user_id, class_id):
-            return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_name}'}), 400
+            return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_id}'}), 400
             
         db.add_user_class(user_id, class_id)
 
@@ -235,13 +218,21 @@ def add_user_class(user_id):
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
+# DELETE class for user
 @app.route('/api/user/<user_id>/delete-class', methods=['DELETE'])
-def remove_user_class(user_id, class_id):
+def remove_user_class(user_id):
+    data = request.get_json()
+    class_id = data.get('abbr')
+
+    # check for class exists, user already taking
+    if not class_id:
+         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+
     if not db.class_exists(class_id):
         return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
 
-    if db.user_class_exists(user_id, class_id):
-        return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_id}'}), 400
+    if not db.user_class_exists(user_id, class_id):
+        return jsonify({'status': 'error', 'response': f'User is not taking this class {class_id}'}), 400
     
     try:
         db.delete_user_class(user_id, class_id)
