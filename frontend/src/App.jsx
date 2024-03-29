@@ -7,6 +7,7 @@ import {
   Navigate,
   Outlet
 } from 'react-router-dom';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setUserInfo, clearUser } from './redux/userSlice';
