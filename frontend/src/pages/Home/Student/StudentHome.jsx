@@ -79,13 +79,13 @@ const StudentHome = () => {
   }
 
   return (
-    <Flex px={10} w="full">
+    <Flex px={10} mb={4} w="full">
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
         <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({userInfo.role}) {userInfo.name}</Text>
         
-        <Flex direction={{ base: 'column', md: 'row' }} w="full" justify="space-between" align="start">
-          <Flex direction="column" flex={1} mr={{ md: 4 }}>
+        <Flex direction={{ base: 'column', lg: 'row' }} w="full" justify="space-between" align="start">
+          <Flex direction="column" flex={1} mr={{ lg: 4 }}>
             <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
 
             {isLoading ? (
@@ -95,7 +95,7 @@ const StudentHome = () => {
               </Flex>
             ) : (
               // no classes
-              <Flex direction={{ base: 'column', lg: 'row' }} w="full">
+              <Flex w="full">
                 {classes.length === 0 ? (
                   <Flex w="full" flex="3">
                     <Text fontSize={20} textColor="#063763">No classes yet...</Text>
