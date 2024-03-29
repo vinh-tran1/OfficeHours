@@ -58,7 +58,7 @@ export const ClassModal = ({ isOpen, onClose, validate, cls }) => {
                 <ModalBody>
                     <Formik
                         innerRef={formRef}
-                        initialValues={{"name": cls.name, "time-hours": cls.time.substring(cls.time.indexOf(" ") + 1)}}
+                        initialValues={{"name": cls.name, "time-hours": cls.time !== undefined && cls.time.substring(cls.time.indexOf(" ") + 1)}}
                         onSubmit={(values, actions) => updateClass(values, actions)}
                     >
                         {(props) => (
@@ -74,7 +74,7 @@ export const ClassModal = ({ isOpen, onClose, validate, cls }) => {
 
                 <ModalFooter>
                     <Button colorScheme='blue' mr={3} onClick={submitForm} isLoading={loading}>
-                        Create
+                        Update
                     </Button>
                     <Button variant='ghost' onClick={onExit}>Cancel</Button>
                 </ModalFooter>

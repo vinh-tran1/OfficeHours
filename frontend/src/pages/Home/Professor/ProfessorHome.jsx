@@ -22,7 +22,7 @@ const ProfessorHome = () => {
   const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
   const EVENT_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events?admin_id=" + user_id;
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   const [classes, setClasses] = useState([]);
   const [modalClass, setModalClass] = useState({})
   const toast = useToast();
@@ -33,7 +33,6 @@ const ProfessorHome = () => {
   }, [isOpen])
 
   async function updateClasses(class_infos) {
-    setLoading(true)
     let clses = []
     for (let i in class_infos) {
       let cls_info = class_infos[i]
