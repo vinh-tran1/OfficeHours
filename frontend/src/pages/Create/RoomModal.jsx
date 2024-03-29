@@ -10,9 +10,9 @@ import {
     ModalOverlay,
     useToast
 } from "@chakra-ui/react"
-import { ClassInput } from "../Input"
-import { Form, Formik, useFormikContext } from 'formik';
-import { postData } from "../../../utils";
+import { ClassInput } from "./Input"
+import { Form, Formik } from 'formik';
+import { postData } from "../../utils";
 import { useRef, useState } from "react";
 
 export const RoomModal = ({ isOpen, onClose, validate }) => {
@@ -39,7 +39,7 @@ export const RoomModal = ({ isOpen, onClose, validate }) => {
       };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onExit}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Create Room</ModalHeader>
@@ -69,7 +69,7 @@ export const RoomModal = ({ isOpen, onClose, validate }) => {
                     <Button colorScheme='blue' mr={3} onClick={submitForm} isLoading={loading}>
                         Create
                     </Button>
-                    <Button variant='ghost' onClick={onClose}>Cancel</Button>
+                    <Button variant='ghost' onClick={onExit}>Cancel</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

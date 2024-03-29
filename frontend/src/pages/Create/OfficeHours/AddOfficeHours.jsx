@@ -16,7 +16,7 @@ import { ClassInput } from '../Input';
 import { getData, validate } from '../../../utils';
 import { Field, Form, Formik } from 'formik';
 import { useEffect, useState } from 'react';
-import { RoomModal } from '../Class/RoomModal';
+import { RoomModal } from '../RoomModal';
 
 export const AddOfficeHours = ({class_name, createEvent}) => {
     const ROOM_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/room";

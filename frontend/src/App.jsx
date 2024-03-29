@@ -4,7 +4,8 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate
+  Navigate,
+  Outlet
 } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
@@ -93,12 +94,11 @@ const App = () => {
     setAuthenticated(false);
   }
 
-  // protected routes: only access if authenticated
-  const ProtectedRoute = ({ children }) => {
+  const ProtectedRoute = () => {
     if (!authenticated) {
       return <Navigate replace={true} to="/auth" />;
     }
-    return children;
+    return <Outlet />;
   };
 
   return (
@@ -109,39 +109,18 @@ const App = () => {
           <Route path="/" element={<Navigate replace={true} to={authenticated ? (admin ? "/professor" : "/student") : "/auth"} />} />
           <Route path="/auth" element={<Auth handleSignUp={handleSignUp} handleLogin={handleLogin} />} />
           {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/" />} />}
-          
-          <Route path="/student" element={
-            <ProtectedRoute>
-              <StudentHome />
-            </ProtectedRoute>
-          } />
 
-          <Route path="/professor" element={
-            <ProtectedRoute>
-              <ProfessorHome />
-            </ProtectedRoute>
-          } />
+          {/* protected routes: only access if authenticated */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/student" element={<StudentHome /> } />
+            <Route path="/professor">
+              <Route index element={<ProfessorHome />} />
+              <Route path="add" element={<ProfessorAddClass />} />
+              <Route path=":id" element={<ProfessorClass />} />
+            </Route>
+            <Route path="/calendar" element={<Calendar />} />
+          </Route>
 
-          <Route path="/professor" element={
-            <ProtectedRoute>
-              <ProfessorHome />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/professor/add" element={
-            <ProtectedRoute>
-              <ProfessorAddClass />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/professor/:id" element={
-            <ProtectedRoute>
-              <ProfessorClass />
-            </ProtectedRoute>
-          } />
-
-
-          <Route path="/calendar" element={<Calendar />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
           

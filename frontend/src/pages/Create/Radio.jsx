@@ -4,8 +4,6 @@ import {
     FormLabel,
     RadioGroup,
     Radio,
-    Stack,
-    VStack,
     Grid
 } from '@chakra-ui/react'
 import { Field } from 'formik';
@@ -18,7 +16,7 @@ export const ClassRadio = ({name, label, values, validate, ...styles}) => {
                     <FormLabel>{label}</FormLabel>
                     <RadioGroup colorScheme='blue' defaultValue={[]}>
                         <Grid templateColumns='repeat(3, 1fr)' gap={1} direction={['column', 'row']}>
-                            {values.map((value, index) => <Radio key={index} {...field} value={value.toLowerCase()} >{value}</Radio>)}
+                            {values.map((value, index) => <Radio key={index} {...field} value={value} >{value}</Radio>)}
                         </Grid>
                     </RadioGroup>
                     <FormErrorMessage>{form.errors[name]}</FormErrorMessage>

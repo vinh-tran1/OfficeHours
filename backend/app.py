@@ -109,10 +109,10 @@ def post_class():
     time = data.get('time')
     time_hours = data.get('time-hours')
     room = data.get('room')
-    if abbr is None or name is None or time is None or time_hours is None or room is None:
+    admin_id = data.get('admin_id')
+    if abbr is None or name is None or time is None or time_hours is None or room is None or admin_id is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
     
-
     time = _convert_time_to_string(time, time_hours)
     try:
         if db.class_exists(abbr):
@@ -120,6 +120,7 @@ def post_class():
         
         db.add_class(abbr, name, time, 0)
         db.add_class_room(abbr, room)
+        db.add_class_admin(abbr, admin_id)
         return jsonify({'status': 'success', 'response': f'Class {abbr} added'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
@@ -138,6 +139,16 @@ def read_class(class_id):
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
 
+# Read All Professor Classes
+@app.route('/api/professor/class', methods=['GET'])
+def read_classes():
+    admin_id = request.args.get("admin_id")
+    try:
+        classes = db.read_all_classes(admin_id)
+        return jsonify({'status': 'success', 'response': classes})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
 # Update Class
 @app.route('/api/class/<class_id>', methods=['PUT'])
 def update_class(class_id):
@@ -150,8 +161,12 @@ def update_class(class_id):
     time = data.get('time')
     time_hours = data.get('time-hours')
     hours = data.get('hours')
+    admin_id = data.get('admin_id')
     if name is None and time is None and hours is None and time_hours is None:
         return jsonify({'status': 'error', 'response': 'All update values are empty'}), 400
+
+    if admin_id is None or not db.class_verify_ownership(class_id, admin_id):
+        return jsonify({'status': 'error', 'response': 'Not Authorized'}), 401
 
     if time is not None and time_hours is not None:
         time = _convert_time_to_string(time, time_hours)
@@ -165,10 +180,15 @@ def update_class(class_id):
 # Delete Class
 @app.route('/api/class/<class_id>', methods=['DELETE'])
 def remove_class(class_id):
+    data = request.get_json()
+    admin_id = data.get('admin_id')
     if not db.class_exists(class_id):
         # class does not exist
         return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
     
+    if admin_id is None or not db.class_verify_ownership(class_id, admin_id):
+        return jsonify({'status': 'error', 'response': 'Not Authorized'}), 401
+
     try:
         db.delete_class(class_id)
         return jsonify({'status': 'success', 'response': f'Class {class_id} deleted'})
@@ -294,31 +314,55 @@ def post_room():
 # events routes
 ####################################################
 # Create event
-# TODO - enter with admin ID & room ID
 @app.route('/api/events', methods=['POST'])
 def post_event():
     data = request.get_json()
     name = data.get('name')
-    location = data.get('location')
+    room = data.get('location')
     time = data.get('time')
     start = data.get('start')
     end = data.get('end')
-    if name is None or location is None or time is None or start is None or end is None:
+    admin_id = data.get('admin_id')
+    class_id = data.get('class_id')
+    if name is None or room is None or time is None or start is None or end is None or admin_id is None or class_id is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
     
     try:
-        db.add_event(name, location, time, start, end)
+        event_id = db.add_event(name, room, time, start, end)
+        db.add_class_event(event_id, class_id)
+        db.add_event_room(event_id, room)
+        db.add_event_admin(event_id, admin_id)
         return jsonify({'status': 'success', 'response': f'Event {name} added'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
 # Read Events
-# TODO - take in admin ID
 @app.route('/api/events', methods=['GET'])
 def read_events():
+    admin_id = request.args.get("admin_id")
+    class_id = request.args.get("class_id")
+
     try:
-        events = db.all_events()
+        events = db.all_events(admin_id, class_id)
         return jsonify({'status': 'success', 'response': events})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+# Delete Event
+@app.route('/api/events/<event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    data = request.get_json()
+    admin_id = data.get('admin_id')
+    if not db.event_exists(event_id):
+        # event does not exist
+        return jsonify({'status': 'error', 'response': f'Event {event_id} does not exist'}), 400
+   
+    if admin_id is None or not db.event_verify_ownership(event_id, admin_id):
+        return jsonify({'status': 'error', 'response': 'Not Authorized'}), 401
+
+    try:
+        db.delete_event(event_id)
+        return jsonify({'status': 'success', 'response': f'Event {event_id} deleted'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 

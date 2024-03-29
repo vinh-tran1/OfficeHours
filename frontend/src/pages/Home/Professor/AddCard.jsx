@@ -4,7 +4,7 @@ import { FaPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const AddCard = () => {
-    const navigate = useNavigate();;
+    const navigate = useNavigate();
     return (
         <Box
             borderWidth="2px"
@@ -15,6 +15,7 @@ const AddCard = () => {
             boxShadow="lg"
             bg="#f4f4f4"
             position="relative"
+            minH="250px"
             onClick={() => navigate("/professor/add")}
         >
             <Box

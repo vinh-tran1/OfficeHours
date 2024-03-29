@@ -12,14 +12,19 @@ import { Field, Form, Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { ClassInput } from '../Input';
 import { ClassCheckBox } from '../CheckBox';
-import { RoomModal } from './RoomModal';
+import { RoomModal } from '../RoomModal';
 import { getData, postData, validate } from '../../../utils';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '../../../redux/userSlice';
 
 export const ProfessorAddClass = () => {
 
     const API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class";
     const ROOM_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/room";
+
+    const userInfo = useSelector(selectUserInfo);
+    const user_id = userInfo.user_id;
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure()
     const navigate = useNavigate();
@@ -27,6 +32,7 @@ export const ProfessorAddClass = () => {
     const [rooms, setRooms] = useState([])
 
     const submitForm = (values, actions) => {
+        values.admin_id = user_id;
         postData(API_URL, values, actions, toast, () => {navigate('/professor/' + values['abbr']);})
     }
 
