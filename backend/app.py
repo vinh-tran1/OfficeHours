@@ -14,18 +14,11 @@ app = Flask(__name__, template_folder='/')
 CORS(app)
 
 ####################################################
-# home routes
-####################################################
-@app.route('/', methods=['GET'])
-def home():
-    return jsonify({ 'response':'home test' })
-
-####################################################
 # auth routes
 ####################################################
 
 # Admin Sign Up
-@app.route('/signup/admin', methods=['POST'])
+@app.route('/api/signup/admin', methods=['POST'])
 def admin_signup():
     data = request.get_json()
     email = data.get('email')
@@ -42,12 +35,14 @@ def admin_signup():
     try:
         # Check if the user already exists to avoid duplicates
         db.add_professor(email, name, password, role)
-        return jsonify({'status': 'success', 'response': 'Admin created successfully'})
+        professor = db.get_professor_by_email(email)
+
+        return jsonify({'status': 'success', 'response': 'Admin created successfully', 'user': professor})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed to create admin: {e}'}), 500
 
 # Admin Login
-@app.route('/login/admin', methods=['POST'])
+@app.route('/api/login/admin', methods=['POST'])
 def admin_login():
     data = request.get_json()
     email = data.get('email')
@@ -58,12 +53,12 @@ def admin_login():
 
     professor = db.get_professor_by_email(email)
     if professor and db.check_password(professor['password'], password):
-        return jsonify({'status': 'success', 'response': 'Login successful', 'professor': professor})
+        return jsonify({'status': 'success', 'response': 'Login successful', 'user': professor})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
 # Student Sign Up
-@app.route('/signup/student', methods=['POST'])
+@app.route('/api/signup/student', methods=['POST'])
 def student_signup():
     data = request.get_json()
     email = data.get('email')
@@ -79,12 +74,14 @@ def student_signup():
     try:
         # Check if the user already exists to avoid duplicates
         db.add_student(email, name, password)
-        return jsonify({'status': 'success', 'response': 'User created successfully'})
+        user = db.get_student_by_email(email)
+
+        return jsonify({'status': 'success', 'response': 'User created successfully', 'user': user})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed to create user: {e}'}), 500
 
 # Student Login
-@app.route('/login/student', methods=['POST'])
+@app.route('/api/login/student', methods=['POST'])
 def student_login():
     data = request.get_json()
     email = data.get('email')
@@ -98,30 +95,6 @@ def student_login():
         return jsonify({'status': 'success', 'response': 'Login successful', 'user': user})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
-
-####################################################
-# student routes
-####################################################
-@app.route('/student', methods=['GET'])
-def get_classes():
-    # dummy data
-    classes = [
-        { 'title': 'CPSC 419', 'name': 'Full Stack', 'hours': '7' },
-        { 'title': 'CPSC 323', 'name': 'Intro to Systems', 'hours': '20' },
-        { 'title': 'CPSC 365', 'name': 'Algorithms', 'hours': '12' },
-        { 'title': 'CPSC 223', 'name': 'Data Structures', 'hours': '4' },
-        { 'title': 'CPSC 429', 'name': 'Software Engineering', 'hours': '2' }
-    ]
-    
-    return jsonify(classes)
-
-####################################################
-# professor routes
-####################################################
-@app.route('/professor', methods=['GET'])
-def test_professor():
-    return jsonify({ 'response':'professor test' })
-
 
 ####################################################
 # class routes
@@ -223,6 +196,75 @@ def remove_class(class_id):
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
 ####################################################
+# user class routes
+####################################################  
+#  GET user's classes
+@app.route('/api/user/<user_id>', methods=['GET'])
+def get_user_classes(user_id):
+    try:
+        classes = db.read_user_classes(user_id)
+        return jsonify({'status': 'success', 'classes': classes})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
+    
+# POST add class for user
+@app.route('/api/user/<user_id>/add-class', methods=['POST'])
+def add_user_class(user_id):
+    data = request.get_json()
+    class_id = data.get('abbr')
+
+    # check for class exists, user already taking
+    if not class_id:
+         return jsonify({'status': 'error', 'message': 'Missing input value'}), 400
+       
+    try:
+        if not db.class_exists(class_id):
+            return jsonify({'status': 'error', 'message': f'Class {class_id} does not exist'}), 400
+
+        # user is already taking this class
+        if db.user_class_exists(user_id, class_id):
+            return jsonify({'status': 'error', 'message': f'User is alreading taking class {class_id}'}), 400
+            
+        db.add_user_class(user_id, class_id)
+
+        # retrieve new classes
+        new_class = db.read_class(class_id)
+
+        # return new class to render on frontend
+        return jsonify({'status': 'success', 'response': f'Class {class_id} added', 'newClass': new_class})
+    
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
+
+# DELETE class for user
+@app.route('/api/user/<user_id>/delete-class', methods=['DELETE'])
+def remove_user_class(user_id):
+    data = request.get_json()
+    class_id = data.get('abbr')
+
+    # check for class exists, user already taking
+    if not class_id:
+         return jsonify({'status': 'error', 'message': 'Missing input value'}), 400
+
+    if not db.class_exists(class_id):
+        return jsonify({'status': 'error', 'message': f'Class {class_id} does not exist'}), 400
+
+    if not db.user_class_exists(user_id, class_id):
+        return jsonify({'status': 'error', 'message': f'User is not taking this class {class_id}'}), 400
+    
+    try:
+        db.delete_user_class(user_id, class_id)
+
+        # retrieve deleted classes
+        deleted_class = db.read_class(class_id)
+
+        # return deleted class to render on frontend
+        return jsonify({'status': 'success', 'response': f'Class {class_id} deleted from user {user_id}', 'deletedClass': deleted_class})
+    
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+####################################################
 # room routes
 ####################################################
     
@@ -281,11 +323,13 @@ def post_event():
     start = data.get('start')
     end = data.get('end')
     admin_id = data.get('admin_id')
-    if name is None or room is None or time is None or start is None or end is None or admin_id is None:
+    class_id = data.get('class_id')
+    if name is None or room is None or time is None or start is None or end is None or admin_id is None or class_id is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
     
     try:
         event_id = db.add_event(name, room, time, start, end)
+        db.add_class_event(event_id, class_id)
         db.add_event_room(event_id, room)
         db.add_event_admin(event_id, admin_id)
         return jsonify({'status': 'success', 'response': f'Event {name} added'})
@@ -296,9 +340,10 @@ def post_event():
 @app.route('/api/events', methods=['GET'])
 def read_events():
     admin_id = request.args.get("admin_id")
+    class_id = request.args.get("class_id")
 
     try:
-        events = db.all_events(admin_id)
+        events = db.all_events(admin_id, class_id)
         return jsonify({'status': 'success', 'response': events})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500

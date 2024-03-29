@@ -15,6 +15,7 @@ const AddCard = () => {
             boxShadow="lg"
             bg="#f4f4f4"
             position="relative"
+            minH="250px"
             onClick={() => navigate("/professor/add")}
         >
             <Box

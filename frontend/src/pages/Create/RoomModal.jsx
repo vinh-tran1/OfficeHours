@@ -39,7 +39,7 @@ export const RoomModal = ({ isOpen, onClose, validate }) => {
       };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onExit}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Create Room</ModalHeader>
@@ -69,7 +69,7 @@ export const RoomModal = ({ isOpen, onClose, validate }) => {
                     <Button colorScheme='blue' mr={3} onClick={submitForm} isLoading={loading}>
                         Create
                     </Button>
-                    <Button variant='ghost' onClick={onClose}>Cancel</Button>
+                    <Button variant='ghost' onClick={onExit}>Cancel</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

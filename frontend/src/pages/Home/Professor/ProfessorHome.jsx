@@ -1,54 +1,101 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Flex,
   Grid,
+  Spinner,
   Text,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
-import { Admin } from '../../../classes/Admin';
-import { Class } from '../../../classes/Class';
-import { Room } from '../../../classes/Room';
-import { ZipCode } from '../../../classes/ZipCode';
 import ClassCard from './ClassCard';
-import { Event } from '../../../classes/Event';
 import AddCard from './AddCard';
-import { getData } from '../../../utils';
+import { updateData, getData, validate } from '../../../utils';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '../../../redux/userSlice';
+import { Class } from '../../../classes/Class';
+import { ClassModal } from '../../Create/Class/UpdateClass';
 
 const ProfessorHome = () => {
 
-  // TODO - pull classes && office hours && admin
-  const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/classes";
-  const ROOM_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/room";
-  const admin = new Admin("id", "Alan Weide", "Professor", "alan.weide@yale.edu")
-  const hillhouse = new Room("id", "DL 419", "10 Hillhouse Avenue", new ZipCode("06511", "New Haven", "CT"));
-  const monday = new Event("id", hillhouse, "short description", "Monday", "4:00pm", "5:00pm");
-  const tuesday = new Event("id", hillhouse, "short description", "Tuesday", "4:00pm", "5:00pm")
-  const classes = [
-    { "class": new Class("CPSC 419", "Full Stack", hillhouse, "MW 1:00pm-2:15pm", '7'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2")]},
-    { "class": new Class("CPSC 223", "Data Structures", hillhouse, "TTh 2:30pm-5:15pm", '8'), "events": [monday, tuesday], "ta": [new Admin("id", "Person 1", "TA", "person1@gmail.com", "3"), new Admin("id", "Person 2", "ULA", "person2@gmail.com", "2"), new Admin("id", "Person 3", "ULA", "person3@gmail.com", "1")]}
-  ];
+  const userInfo = useSelector(selectUserInfo);
+  const user_id = userInfo.user_id;
+  const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
+  const EVENT_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events?admin_id=" + user_id;
+  const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
+  const [isLoading, setLoading] = useState(false);
+  const [classes, setClasses] = useState([]);
+  const [modalClass, setModalClass] = useState({})
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
+  useEffect(() => {
+    getData(CLASS_API_URL, toast, updateClasses)
+  }, [isOpen])
 
-  // useEffect(() => {
-  //   getData(CLASS_API_URL, toast, setClasses)
-  // }, [isOpen])
+  async function updateClasses(class_infos) {
+    setLoading(true)
+    let clses = []
+    for (let i in class_infos) {
+      let cls_info = class_infos[i]
+      let cls = {}
+      cls.class = new Class(cls_info[0], cls_info[1], cls_info[2], cls_info[3], cls_info[4], cls_info[5], cls_info[6]);
+      cls.events = await getEvents(cls.class.abbr)
+      cls.ta = undefined; // TODO next version
+      clses.push(cls)
+    }
+    setClasses(clses)
+    setLoading(false)
+  }
+
+  async function getEvents(class_id) {
+    const response = await fetch(EVENT_API_URL + "&class_id=" + class_id)
+
+    if (!response.ok) {
+      toast({
+        title: response.status,
+        status: 'error',
+        isClosable: true,
+      })
+    }
+
+    const events = await response.json()
+    return events['response']
+  }
+
+  function deleteClass(class_id) {
+    updateData(DELETE_API_URL + class_id, "DELETE", { "admin_id": user_id }, toast, (response) => deleteSuccess(class_id, response))
+  }
+
+  function deleteSuccess(class_id, response) {
+    const updatedClasses = classes.filter(classItem => classItem.class.abbr !== class_id);
+    setClasses(updatedClasses);
+    toast({ title: response, status: "success", isClosable: true, })
+  }
+
+  function openModal(cls) {
+    setModalClass(cls)
+    onOpen()
+  }
 
   return (
     <Flex px={10}>
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
-        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({admin.role}) {admin.name}</Text>
+        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({userInfo.role}) {userInfo.name}</Text>
         <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
 
         {/* grid of classes */}
         <Flex direction={{ base: 'column', lg: 'row' }} w="full">
           <Grid templateColumns="repeat(4, 1fr)" gap={10} w="full" mb={6} flex="4">
+            {isLoading && <Spinner />}
             {classes.map((cls, index) => (
-              <ClassCard key={index} cls={cls.class} events={cls.events} ta={cls.ta} />
+              <ClassCard key={index} cls={cls.class} events={cls.events} ta={cls.ta} deleteClass={deleteClass} update={(c) => openModal(c)} />
             ))}
             <AddCard />
           </Grid>
         </Flex>
       </Flex>
+      <ClassModal isOpen={isOpen} onClose={onClose} validate={validate} cls={modalClass} />
     </Flex>
   );
 };

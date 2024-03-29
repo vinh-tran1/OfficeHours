@@ -1,95 +1,133 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
   Flex,
   Grid,
   Text,
-  VStack,
-  Input,
-  InputGroup,
-  InputLeftElement,
+  useToast,
+  Spinner
 } from '@chakra-ui/react';
-import { FaSearch } from 'react-icons/fa';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '../../../redux/userSlice';
 import ClassCard from './ClassCard';
+import AddClass from "./AddClass";
 
 const StudentHome = () => {
-  
-  const API_URL = process.env.REACT_APP_API_URL_LOCAL + "/student";
-  const [classes, setClasses] = useState([]);
-  const [addedClass, setAddedClass] = useState("");
+  const userInfo = useSelector(selectUserInfo);
+  const user_id = userInfo.user_id;
 
-  // dummy student data
-  const student = {role: "Student", name: "Vinh"}
+  const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id;
+  const POST_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/add-class';
+  const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/delete-class'
+  
+  const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [classes, setClasses] = useState([]);
+  const [updatedClass, setUpdatedClass] = useState(false);
+
+  const refreshHome = () => {
+    setUpdatedClass(!updatedClass);
+  }
 
   // get classes
   useEffect(() => {
-    axios.get(API_URL)
+    setIsLoading(true);
+    axios.get(GET_API_URL)
     .then((response) => {
-      setClasses(response.data);
+      setClasses(response.data.classes);
     })
     .catch((error) => {
-      console.log(error);
-    });
-  }, [])
+      toast({ title: error.response.data.message, status: 'error', duration: 3000, isClosable: true })
+    })
+    .finally(() => {
+      setIsLoading(false);
+    })
+  }, [updatedClass])
 
-  // const handleAddClass = async () => {
-  //   console.log(addedClass)
-  // }
+  // POST request: add class
+  const handleAddClass = (class_id) => {
+    const payload = { abbr: class_id }
 
-  // const handledeleteClass = async () => {
-  //   console.log("delete")
-  // }
+    axios.post(POST_API_URL, payload)
+    .then((response) => {
+      const newClass = response.data.newClass;
+      setClasses(currentClasses => [...currentClasses, newClass]);
+      refreshHome();
+      toast({ title: 'added ' + class_id, status: response.data.status, isClosable: true })
+    })
+    .catch((error) => {
+      toast({ title: error.response.data.message, status: 'error', isClosable: true })
+    })
+  }
+
+  // DELETE request: delete class
+  const handleDeleteClass = (class_id) => { 
+    const payload = { abbr: class_id };
+
+    axios.delete(DELETE_API_URL, {data: payload})
+    .then((response) => {
+      const deletedClass = response.data.deletedClass;
+      const updatedClasses = classes.filter(classItem => classItem.class_id !== deletedClass.class_id);
+      setClasses(updatedClasses);
+      refreshHome();
+      toast({ title: 'deleted class ' + class_id, status: response.data.status, isClosable: true })
+
+    })
+    .catch((error) => {
+      toast({ title: error.response.data.message, status: 'error', isClosable: true })
+    })
+  }
 
   return (
-    <Flex px={10}>
+    <Flex px={10} w="full">
       <Flex direction="column" justify="start" align="start" w="full">
         <Text fontSize="5xl" fontWeight="bold" mt={4} color="#063763">My Classes</Text>
-        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({student.role}) {student.name}</Text>
-        <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
+        <Text fontSize="2xl" fontWeight="bold" opacity="80%" color="#063763" mt={0} mb={6}>({userInfo.role}) {userInfo.name}</Text>
+        
+        <Flex direction={{ base: 'column', md: 'row' }} w="full" justify="space-between" align="start">
+          <Flex direction="column" flex={1} mr={{ md: 4 }}>
+            <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Spring 2024</Text>
 
-        {/* grid of classes */}
-        <Flex direction={{ base: 'column', lg: 'row' }} w="full">
-          {classes.length === 0 && <Text fontSize={20}>No classes yet...</Text>}
+            {isLoading ? (
+              // spinner for loading
+              <Flex justify="center" align="center" height="100px">
+                <Spinner thickness="4px" speed="0.75s" emptyColor="gray.200" color="blue.500" size="xl"/>
+              </Flex>
+            ) : (
+              // no classes
+              <Flex direction={{ base: 'column', lg: 'row' }} w="full">
+                {classes.length === 0 ? (
+                  <Flex w="full" flex="3">
+                    <Text fontSize={20} textColor="#063763">No classes yet...</Text>
+                  </Flex>
+                ) : (
+                  // grid of classes
+                  <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
+                    {classes.length > 0 && classes.map((classInfo, index) => (
+                      classInfo && 
+                      <ClassCard 
+                        key={index} 
+                        abbr={classInfo.abbr} 
+                        name={classInfo.name} 
+                        hours={classInfo.hours} 
+                        time={classInfo.time}
+                        handleDeleteClass={handleDeleteClass}
+                      />
+                    ))}
+                  </Grid>
+                )}
+              
+              </Flex>
+            )}
 
-          <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">
-            {classes.map((classInfo, index) => (
-              <ClassCard key={index} title={classInfo.title} name={classInfo.name} hours={classInfo.hours} />
-            ))}
-          </Grid>
+          </Flex>
 
           {/* class search */}
-          <Box            
-            p={4}
-            ml={{ lg: 10 }}
-            mt={{ base: 6, lg: 0 }}
-            borderWidth="2px"
-            borderRadius="lg"
-            borderColor="#4073AF"
-            w={{ base: 'full', lg: 'sm' }}
-            h={500}
-            bg="#F3F8FF"
-            boxShadow="lg"
-            flex="1"
-          >
-            <VStack align="stretch">
-              <Text fontSize="2xl" fontWeight="bold" mb={4}>Add Class</Text>
-              <InputGroup borderWidth="1px" borderRadius="md" bg="white">
-                <InputLeftElement pointerEvents="none">
-                  <FaSearch size="20" color="black" />
-                </InputLeftElement>
-                <Input 
-                  type="text" 
-                  placeholder="search for a class"
-                  onChange={(event) => setAddedClass(event.target.value)} 
-                />
-              </InputGroup>
+          <Flex direction="column" justifyContent="center" alignItems="center" minWidth="240px" ml={8}>
+              <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Add Class</Text>
+              <AddClass handleAddClass={handleAddClass} />
+          </Flex>
 
-              <Text>temporary: {addedClass}</Text>
-              {/* dropdown list could go here */}
-
-            </VStack>
-          </Box>
         </Flex>
       </Flex>
     </Flex>

@@ -58,7 +58,6 @@ def add_student(email: str, name: str, password: str) -> None:
     """
     Add a new student to the database.
     """
-
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     with get_db_connection() as conn:
@@ -85,7 +84,6 @@ def add_professor(email: str, name: str, password: str, role: str) -> None:
     """
     Add a new professor to the database.
     """
-
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     with get_db_connection() as conn:
@@ -126,9 +124,7 @@ def check_password(hashed_password: str, user_password: str) -> bool:
     
     return bcrypt.checkpw(user_password_bytes, hashed_password_bytes)
 
-
-
-def get_student_by_email(email: str):
+def get_student_by_email(email: str) -> dict:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
             select_stmt = "SELECT id, email, name, password FROM users WHERE email = %s;"
@@ -139,7 +135,7 @@ def get_student_by_email(email: str):
                 return dict(zip(columns, user))
             return None
         
-def get_professor_by_email(email: str):
+def get_professor_by_email(email: str) -> dict:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
             select_stmt = "SELECT id, email, name, password FROM admins WHERE email = %s;"
@@ -255,14 +251,14 @@ def delete_class(class_id: str) -> None:
             curs.execute(delete_stmt, (class_id, ))
             conn.commit()
 
-def class_exists(abbr: str) -> bool:
+def class_exists(class_id: str) -> bool:
     """
     Check if class exists
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
             select_stmt = "SELECT EXISTS(SELECT 1 FROM class WHERE abbr = %s);"
-            curs.execute(select_stmt, (abbr, ))
+            curs.execute(select_stmt, (class_id, ))
             exists = curs.fetchone()[0]
             return exists
 
@@ -277,6 +273,71 @@ def class_verify_ownership(class_id: str, admin_id: str) -> bool:
             exists = curs.fetchone()[0]
             return exists
 
+
+####################################################
+# user classes crud
+####################################################  
+def add_user_class(user_id: int, class_id: str) -> None:
+    """
+    Add class to db (user and user_class). App should verify that abbr is unique and values != None
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            # select_stmt = "SELECT id FROM class WHERE abbr = %s;"
+            # curs.execute(select_stmt, (class_id,))
+            # class_id = curs.fetchone()[0]
+
+            insert_stmt = "INSERT INTO user_classes (uid, class_id) VALUES (%s, %s);"
+            curs.execute(insert_stmt, (user_id, class_id))
+            conn.commit()
+
+def read_user_classes(user_id: int) -> list:
+    """
+    Read all of a user's classs given given user_id
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = """
+                SELECT c.abbr, c.name, c.hours, c.time
+                FROM class c
+                JOIN user_classes uc ON c.abbr = uc.class_id
+                WHERE uc.uid = %s
+                ORDER BY c.abbr;
+            """
+            curs.execute(select_stmt, (user_id,))
+            rows = curs.fetchall()
+            columns = [desc[0] for desc in curs.description]
+            classes = [dict(zip(columns, row)) for row in rows] if rows else []
+
+            return classes
+        
+def delete_user_class(user_id: int, class_id: str) -> None:
+    """
+    Delete user's class from user_classes db given user_id and class_id
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            delete_stmt = """
+                DELETE FROM user_classes
+                WHERE uid = %s AND class_id = %s;
+            """
+            curs.execute(delete_stmt, (user_id, class_id))
+            conn.commit()
+
+def user_class_exists(user_id: int, class_id: str) -> bool:
+    """
+    Check if user is already taking a class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            # select_stmt1 = "SELECT id FROM class WHERE abbr = %s;"
+            # curs.execute(select_stmt1, (abbr,))
+            # class_id = curs.fetchone()[0]
+            
+            select_stmt = "SELECT EXISTS(SELECT 1 FROM user_classes WHERE uid = %s AND class_id = %s);"
+            curs.execute(select_stmt, (user_id, class_id))
+            already_enrolled = curs.fetchone()[0]
+            return already_enrolled
 
 ####################################################
 # room crud
@@ -341,7 +402,7 @@ def add_zipcode(zipcode: int, city: str, state: str) -> None:
             insert_stmt = "INSERT INTO zipcode (zipcode, city, state) VALUES (%s, %s, %s)"
             curs.execute(insert_stmt, (zipcode, city, state))
             conn.commit()
-    
+
 def zipcode_exists(zipcode: str) -> bool:
     """
     Check if zipcode exists
@@ -370,6 +431,16 @@ def add_event(name: str, location: str, time: str, start: str, end: str) -> int:
             conn.commit()
             return event_id
 
+def add_class_event(event_id: int, class_id: str) -> None:
+    """
+    Add link between event and class.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO class_events (event_id, class_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (event_id, class_id))
+            conn.commit()
+
 def add_event_room(event_id: int, room: str) -> None:
     """
     Add link between event and room.
@@ -390,7 +461,7 @@ def add_event_admin(event_id: int, admin_id: int) -> None:
             curs.execute(insert_stmt, (event_id, admin_id))
             conn.commit()
 
-def all_events(admin_id: str) -> None: 
+def all_events(admin_id: str, class_id: str) -> None: 
     """
     Return all events
     """
@@ -400,12 +471,14 @@ def all_events(admin_id: str) -> None:
                              FROM events e
                              LEFT JOIN event_admins ea ON ea.event_id = e.id
                              LEFT JOIN admins a ON ea.admin_id = a.id
-                             WHERE a.id = %s
+                             LEFT JOIN class_events ce ON ce.event_id = e.id
+                             LEFT JOIN class c ON ce.class_id = c.abbr
+                             WHERE a.id = %s AND c.abbr = %s
                              GROUP BY e.id
                              ORDER BY e.name
                              LIMIT 1000
                             """
-            curs.execute(select_stmt, (admin_id, ))
+            curs.execute(select_stmt, (admin_id, class_id))
             sql_rows = curs.fetchall()
             rows = []
             for row in sql_rows:

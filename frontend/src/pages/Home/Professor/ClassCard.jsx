@@ -2,9 +2,16 @@ import React from "react";
 import { Box, Flex, Text, IconButton, Divider } from "@chakra-ui/react";
 import { FaEdit, FaRegArrowAltCircleRight, FaTrash } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import { convertTo12HourFormat } from "../../../utils";
 
-const ClassCard = ({ cls, events, ta }) => {
-  const navigate = useNavigate();;
+const ClassCard = ({ cls, events, ta, deleteClass, update }) => {
+  const navigate = useNavigate();
+  const handleRemoveClass = () => {
+    deleteClass(cls.abbr)
+  }
+  const handleUpdateClass = () => {
+    update(cls)
+  }
   return (
     <Box
       borderWidth="2px"
@@ -15,7 +22,6 @@ const ClassCard = ({ cls, events, ta }) => {
       boxShadow="lg"
       bg="#f4f4f4"
       position="relative"
-      onClick={() => navigate("/professor/"+ cls.abbr)}
     >
       {/* Class info */}
       <Flex justify="space-between" align="center">
@@ -24,17 +30,22 @@ const ClassCard = ({ cls, events, ta }) => {
         </Text>
         <Box>
           {/* TODO - UPDATE */}
-          <IconButton icon={<FaEdit size="20" color="black" />} variant="ghost" />
-          {/* TODO - DELETE */}
-          <IconButton icon={<FaTrash size="20" color="black" />} variant="ghost" />
+          <IconButton
+            icon={<FaEdit size="20" color="black" />}
+            variant="ghost"
+            onClick={handleUpdateClass} />
+          <IconButton 
+            icon={<FaTrash size="20" color="black" />}
+            variant="ghost" 
+            onClick={handleRemoveClass}  />
         </Box>
 
       </Flex>
       <Text fontSize="l" fontWeight="semibold" color="gray">
         {cls.name}
       </Text>
-      <Text fontSize="l" fontWeight="semibold" color="gray">
-        Location: {cls.room.abbr}
+      <Text fontSize="l" color="gray">
+        Location: {cls.room_abbr}
       </Text>
 
       <Divider color="black" mb={3} mt={3} />
@@ -46,16 +57,18 @@ const ClassCard = ({ cls, events, ta }) => {
         </Text>
       </Flex>
       {/* <Text fontSize="l" fontWeight="semibold" color="gray">Class: {cls.time}</Text> */}
-      {events.map((event, index) => (
+      {events !== undefined && events.map((event, index) => (
         <Box key={index} mb={2}>
           <Text fontSize="l" fontWeight="semibold" color="gray">
-            {event.day.toUpperCase()}:
+            {event.time}:
           </Text>
-          <Text fontSize="l" fontWeight="semibold" color="gray">
-            {event.start + "-" + event.end}
+          <Text fontSize="l" color="gray">
+            {convertTo12HourFormat(event.start) + "-" + convertTo12HourFormat(event.end)}
           </Text>
         </Box>
       ))}
+
+      {events !== undefined && events.length == 0 && <Text mt={2} fontSize="l" fontWeight="semibold"  color="gray">No Office Hours</Text>}
 
       {/* <Divider color="black" mb={3} mt={3} /> */}
 
@@ -94,6 +107,7 @@ const ClassCard = ({ cls, events, ta }) => {
           <IconButton
             icon={<FaRegArrowAltCircleRight size="20" color="black" />}
             variant="#BFDCFF"
+            onClick={() => navigate("/professor/"+ cls.abbr)}
           />
         </Flex>
       </Box>

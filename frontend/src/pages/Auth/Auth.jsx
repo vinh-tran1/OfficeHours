@@ -26,14 +26,14 @@ const Auth = ({ handleLogin, handleSignUp }) => {
 
     return (
         <Flex flexDir={"row"}>
-            <Flex ml={20} mt={10} flexDir={"column"}>
+            <Flex ml={36} mt={32} flexDir={"column"}>
                 <Flex>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#4988C1"}>O</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#063763"}>ffice</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#4988C1"}>(H)</Heading>
                     <Heading fontSize={100} fontWeight={"bold"} color={"#063763"}>ours</Heading>
                 </Flex>
-                <Flex flexDir={"column"} mb={2}>
+                <Flex flexDir={"column"} mb={10}>
                     <Text fontSize={18} fontWeight={600} color={"#063763"} fontStyle={"italic"}>Making Office Hours Simple</Text>
                     <Text fontSize={18} fontWeight={600} color={"#063763"} fontStyle={"italic"}>Add, view, and edit office hours in only O(H) time!</Text>
                 </Flex>
@@ -44,8 +44,15 @@ const Auth = ({ handleLogin, handleSignUp }) => {
                 }
             </Flex>
             <Spacer />
-            <Flex mt={150} mr={60}>
-                <Image h={600} w={600} src="calendar.jpeg" alt="Calendar" objectFit="cover" />
+            <Flex mt={150} mr={40}>
+                <Image 
+                    w={600}
+                    h={600}
+                    display={{ base: "none", xl: "block" }}
+                    src="calendar.jpeg" 
+                    alt="Calendar" 
+                    objectFit="cover" 
+                />
             </Flex>
         </Flex>
     );
