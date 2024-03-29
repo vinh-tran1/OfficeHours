@@ -7,11 +7,15 @@ import {
   Spinner
 } from '@chakra-ui/react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '../../../redux/userSlice';
 import ClassCard from './ClassCard';
 import AddClass from "./AddClass";
 
 const StudentHome = () => {
-  const user_id = 3; // dummy data
+  const userInfo = useSelector(selectUserInfo);
+  const user_id = userInfo.user_id;
+
   const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id;
   const POST_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/add-class';
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/delete-class'
@@ -32,49 +36,48 @@ const StudentHome = () => {
   useEffect(() => {
     setIsLoading(true);
     axios.get(GET_API_URL)
-    .then((res) => {
-      const data = res.data;
-      setClasses(data.response);
+    .then((response) => {
+      setClasses(response.data.classes);
     })
     .catch((error) => {
-      toast({ title: 'ERROR', status: 'error', isClosable: true })
+      toast({ title: error.response.data.message, status: 'error', duration: 3000, isClosable: true })
     })
     .finally(() => {
       setIsLoading(false);
     })
   }, [updatedClass])
 
+  // POST request: add class
   const handleAddClass = (class_id) => {
     const payload = { abbr: class_id }
 
     axios.post(POST_API_URL, payload)
-    .then((res) => {
-      const data = res.data;
-      const newClass = data.response.newClass;
+    .then((response) => {
+      const newClass = response.data.newClass;
       setClasses(currentClasses => [...currentClasses, newClass]);
       refreshHome();
-      toast({ title: 'adding ' + class_id, status: res.data.status, isClosable: true })
+      toast({ title: 'added ' + class_id, status: response.data.status, isClosable: true })
     })
     .catch((error) => {
-      toast({ title: 'ERROR', status: 'error', isClosable: true })
+      toast({ title: error.response.data.message, status: 'error', isClosable: true })
     })
   }
 
+  // DELETE request: delete class
   const handleDeleteClass = (class_id) => { 
     const payload = { abbr: class_id };
 
     axios.delete(DELETE_API_URL, {data: payload})
-    .then((res) => {
-      const data = res.data;
-      const deletedClass = data.response.deletedClass;
+    .then((response) => {
+      const deletedClass = response.data.deletedClass;
       const updatedClasses = classes.filter(classItem => classItem.class_id !== deletedClass.class_id);
       setClasses(updatedClasses);
       refreshHome();
-      toast({ title: 'deleting class ' + class_id, status: res.data.status, isClosable: true })
+      toast({ title: 'deleted class ' + class_id, status: response.data.status, isClosable: true })
 
     })
     .catch((error) => {
-      toast({ title: 'ERROR', status: 'error', isClosable: true })
+      toast({ title: error.response.data.message, status: 'error', isClosable: true })
     })
   }
 
@@ -94,7 +97,9 @@ const StudentHome = () => {
           // no classes
           <Flex direction={{ base: 'column', lg: 'row' }} w="full">
             {classes.length === 0 ? (
-              <Text fontSize={20} textColor="#063763">No classes yet...</Text>
+              <Flex w="full" flex="3">
+                <Text fontSize={20} textColor="#063763">No classes yet...</Text>
+              </Flex>
             ) : (
               // grid of classes
               <Grid templateColumns="repeat(3, 1fr)" gap={10} w="full" mb={6} flex="3">

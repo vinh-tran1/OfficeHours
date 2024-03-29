@@ -14,10 +14,10 @@ import { FaSearch } from 'react-icons/fa';
 const AddClass = ({ handleAddClass }) => {
     const [addedClass, setAddedClass] = useState(""); 
 
-    const handleUserAddClass = () => {
+    const handleUserAddClass = (event) => {
+        event.preventDefault();
         handleAddClass(addedClass);
         setAddedClass("");
-        
     }
 
     return (
@@ -34,7 +34,7 @@ const AddClass = ({ handleAddClass }) => {
             boxShadow="lg"
             flex="1"
         >
-            <VStack align="stretch" spacing={4} p={4} h={475}>
+            <VStack as="form" onSubmit={handleUserAddClass} align="stretch" spacing={4} p={4} h={475}>
                 <Text fontSize="2xl" fontWeight="bold" mb={4}>Add Class</Text>
                 <InputGroup borderWidth="1px" borderRadius="md" bg="white">
                     <InputLeftElement pointerEvents="none">
@@ -56,10 +56,9 @@ const AddClass = ({ handleAddClass }) => {
                     backgroundColor="#063763"
                     _hover={{ opacity: '70%' }}
                     textColor="white"
-                    type='button'
+                    type='submit'
                     minWidth={150}
                     alignSelf="center"
-                    onClick={handleUserAddClass}
                 >
                     Add Class
                 </Button>

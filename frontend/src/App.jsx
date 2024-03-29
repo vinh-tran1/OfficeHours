@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, useToast } from '@chakra-ui/react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,6 +7,8 @@ import {
   Navigate
 } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setUserInfo, clearUser } from './redux/userSlice';
 import './App.css';
 import Navbar from "./components/Navbar/Navbar";
 import Auth from "./pages/Auth/Auth";
@@ -25,6 +27,9 @@ const App = () => {
   const STUDENT_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/signup/student";
   const ADMIN_SIGNUP_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/signup/admin";
 
+  const dispatch = useDispatch();
+  const toast = useToast();
+
   const [authenticated, setAuthenticated] = useState(false);
   const [admin, setAdmin] = useState(false);
 
@@ -35,13 +40,23 @@ const App = () => {
 
     axios.post(loginUrl, user)
     .then((response) => {
-      console.log("LOGGED IN")
+      const updatedUser = response.data.user;
+      
+      dispatch(setUserInfo({
+        user_id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: user.role
+      }))
+
       setAuthenticated(true);
       onSuccess();
+
+      console.log("LOGGED IN")
     })
     .catch((error) => {
-      console.log(error);
       setAuthenticated(false);
+      toast({ title: error.response.data.response, status: 'error', isClosable: true })
     });
   }
 
@@ -52,17 +67,28 @@ const App = () => {
 
     axios.post(signUpUrl, user)
     .then((response) => {
-      console.log("SIGNED UP")
+      const updatedUser = response.data.user;
+
+      dispatch(setUserInfo({
+        user_id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: user.role
+      }))
+
       setAuthenticated(true);
       onSuccess();
+
+      console.log("SIGNED UP")
     })
     .catch((error) => {
-      console.log(error);
       setAuthenticated(false);
+      toast({ title: error.response.data.response, status: 'error', isClosable: true })
     });
   }
 
   const handleLogout = () => {
+    dispatch(clearUser());
     setAuthenticated(false);
   }
 

@@ -35,7 +35,9 @@ def admin_signup():
     try:
         # Check if the user already exists to avoid duplicates
         db.add_professor(email, name, password, role)
-        return jsonify({'status': 'success', 'response': 'Admin created successfully'})
+        professor = db.get_professor_by_email(email)
+
+        return jsonify({'status': 'success', 'response': 'Admin created successfully', 'user': professor})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed to create admin: {e}'}), 500
 
@@ -51,7 +53,7 @@ def admin_login():
 
     professor = db.get_professor_by_email(email)
     if professor and db.check_password(professor['password'], password):
-        return jsonify({'status': 'success', 'response': 'Login successful', 'professor': professor})
+        return jsonify({'status': 'success', 'response': 'Login successful', 'user': professor})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
@@ -72,7 +74,9 @@ def student_signup():
     try:
         # Check if the user already exists to avoid duplicates
         db.add_student(email, name, password)
-        return jsonify({'status': 'success', 'response': 'User created successfully'})
+        user = db.get_student_by_email(email)
+
+        return jsonify({'status': 'success', 'response': 'User created successfully', 'user': user})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed to create user: {e}'}), 500
 
@@ -178,10 +182,10 @@ def remove_class(class_id):
 @app.route('/api/user/<user_id>', methods=['GET'])
 def get_user_classes(user_id):
     try:
-        class_info = db.read_user_classes(user_id)
-        return jsonify({'status': 'success', 'response': class_info})
+        classes = db.read_user_classes(user_id)
+        return jsonify({'status': 'success', 'classes': classes})
     except Exception as e:
-        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+        return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
     
 # POST add class for user
 @app.route('/api/user/<user_id>/add-class', methods=['POST'])
@@ -191,15 +195,15 @@ def add_user_class(user_id):
 
     # check for class exists, user already taking
     if not class_id:
-         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+         return jsonify({'status': 'error', 'message': 'Missing input value'}), 400
        
     try:
         if not db.class_exists(class_id):
-            return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+            return jsonify({'status': 'error', 'message': f'Class {class_id} does not exist'}), 400
 
         # user is already taking this class
         if db.user_class_exists(user_id, class_id):
-            return jsonify({'status': 'error', 'response': f'User is alreading taking class {class_id}'}), 400
+            return jsonify({'status': 'error', 'message': f'User is alreading taking class {class_id}'}), 400
             
         db.add_user_class(user_id, class_id)
 
@@ -207,16 +211,10 @@ def add_user_class(user_id):
         new_class = db.read_class(class_id)
 
         # return new class to render on frontend
-        return jsonify({
-            'status': 'success', 
-            'response': {
-                'message': f'Class {class_id} added',
-                'newClass': new_class
-            }
-        })
+        return jsonify({'status': 'success', 'response': f'Class {class_id} added', 'newClass': new_class})
     
     except Exception as e:
-        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+        return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
 
 # DELETE class for user
 @app.route('/api/user/<user_id>/delete-class', methods=['DELETE'])
@@ -226,13 +224,13 @@ def remove_user_class(user_id):
 
     # check for class exists, user already taking
     if not class_id:
-         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
+         return jsonify({'status': 'error', 'message': 'Missing input value'}), 400
 
     if not db.class_exists(class_id):
-        return jsonify({'status': 'error', 'response': f'Class {class_id} does not exist'}), 400
+        return jsonify({'status': 'error', 'message': f'Class {class_id} does not exist'}), 400
 
     if not db.user_class_exists(user_id, class_id):
-        return jsonify({'status': 'error', 'response': f'User is not taking this class {class_id}'}), 400
+        return jsonify({'status': 'error', 'message': f'User is not taking this class {class_id}'}), 400
     
     try:
         db.delete_user_class(user_id, class_id)
@@ -241,13 +239,7 @@ def remove_user_class(user_id):
         deleted_class = db.read_class(class_id)
 
         # return deleted class to render on frontend
-        return jsonify({
-            'status': 'success', 
-            'response': {
-                'message': f'Class {class_id} deleted from user {user_id}',
-                'deletedClass': deleted_class
-            }
-        })
+        return jsonify({'status': 'success', 'response': f'Class {class_id} deleted from user {user_id}', 'deletedClass': deleted_class})
     
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
