@@ -343,7 +343,18 @@ def read_events():
     class_id = request.args.get("class_id")
 
     try:
-        events = db.all_events(admin_id, class_id)
+        events = db.all_events_class(admin_id, class_id)
+        return jsonify({'status': 'success', 'response': events})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+
+# Read All Events
+@app.route('/api/events/all', methods=['GET'])
+def read_all_events():
+    admin_id = request.args.get("admin_id")
+
+    try:
+        events = db.all_events(admin_id)
         return jsonify({'status': 'success', 'response': events})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500

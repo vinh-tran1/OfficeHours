@@ -8,13 +8,4 @@ export class Class {
         this.room_street = room_street;
         this.room_zipcode = room_zipcode;
     }
-
-    update(name, time, hours) {
-
-    }
-
-    delete() {
-
-    }
-
 }

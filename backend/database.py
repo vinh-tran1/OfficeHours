@@ -461,7 +461,7 @@ def add_event_admin(event_id: int, admin_id: int) -> None:
             curs.execute(insert_stmt, (event_id, admin_id))
             conn.commit()
 
-def all_events(admin_id: str, class_id: str) -> None: 
+def all_events_class(admin_id: str, class_id: str) -> None: 
     """
     Return all events
     """
@@ -479,6 +479,28 @@ def all_events(admin_id: str, class_id: str) -> None:
                              LIMIT 1000
                             """
             curs.execute(select_stmt, (admin_id, class_id))
+            sql_rows = curs.fetchall()
+            rows = []
+            for row in sql_rows:
+                rows.append(dict(row))
+            return rows
+
+def all_events(admin_id: str) -> None: 
+    """
+    Return all events
+    """
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
+            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end 
+                             FROM events e
+                             LEFT JOIN event_admins ea ON ea.event_id = e.id
+                             LEFT JOIN admins a ON ea.admin_id = a.id
+                             WHERE a.id = %s
+                             GROUP BY e.id
+                             ORDER BY e.name
+                             LIMIT 1000
+                            """
+            curs.execute(select_stmt, (admin_id, ))
             sql_rows = curs.fetchall()
             rows = []
             for row in sql_rows:

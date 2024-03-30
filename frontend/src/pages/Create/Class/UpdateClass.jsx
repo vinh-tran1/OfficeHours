@@ -10,14 +10,12 @@ import {
     ModalFooter,
     ModalHeader,
     ModalOverlay,
-    Select,
-    Text,
     useToast
 } from "@chakra-ui/react"
 import { ClassInput } from "../Input"
-import { Field, Form, Formik } from 'formik';
-import { getData, updateData } from "../../../utils";
-import { useEffect, useRef, useState } from "react";
+import { Form, Formik } from 'formik';
+import { updateData } from "../../../utils";
+import { useRef, useState } from "react";
 import { useSelector } from 'react-redux';
 import { selectUserInfo } from '../../../redux/userSlice';
 import { ClassCheckBox } from "../CheckBox";
