@@ -10,6 +10,9 @@ import moment from 'moment'
 import 'moment-timezone'
 import "../../styles/calendar.css"
 
+import axios from 'axios';
+import { MdContactSupport } from 'react-icons/md';
+
 moment.tz.setDefault('America/New_York')
 const localizer = momentLocalizer(moment)
 
@@ -30,7 +33,7 @@ const MyWeekCalendar = () => {
   const userInfo = useSelector(selectUserInfo);
   const user_id = userInfo.user_id;
   const PROFESSOR_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events/all";
-  const STUDENT_EVENTS_API_URL = undefined;
+  const STUDENT_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/user/" + user_id + "/events";
   const [events, setEvents] = useState([]);
   const [scrollToTime, setTime] = useState(new Date().setHours(10,0,0,0))
   const toast = useToast();
@@ -40,16 +43,21 @@ const MyWeekCalendar = () => {
   }, [])
 
   function getEvents() {
-    if(userInfo.role == 'Student') {
+    if(userInfo.role === 'Student') {
       // get student events
+      getStudentEvents(STUDENT_EVENTS_API_URL);
     } else {
       // get professor events
-      getProfessorEvents(PROFESSOR_EVENTS_API_URL + "?admin_id=" + user_id)
+      getProfessorEvents(PROFESSOR_EVENTS_API_URL + "?admin_id=" + user_id);
     }
   }
 
   function getProfessorEvents(api_url) {
-    getData(api_url, toast, (events) => cleanEvents(events))
+    getData(api_url, toast, (events) => cleanEvents(events));
+  }
+
+  function getStudentEvents(api_url) {
+    getData(api_url, toast, (events) => cleanEvents(events));
   }
 
   function cleanEvents(evts) {

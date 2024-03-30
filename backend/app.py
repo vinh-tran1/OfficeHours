@@ -199,11 +199,11 @@ def remove_class(class_id):
 # user class routes
 ####################################################  
 #  GET user's classes
-@app.route('/api/user/<user_id>', methods=['GET'])
+@app.route('/api/user/<user_id>/classes', methods=['GET'])
 def get_user_classes(user_id):
     try:
         classes = db.read_user_classes(user_id)
-        return jsonify({'status': 'success', 'classes': classes})
+        return jsonify({'status': 'success', 'response': classes})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
     
@@ -358,6 +358,34 @@ def read_all_events():
         return jsonify({'status': 'success', 'response': events})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+    
+# Read All Events Of a Specific Class
+@app.route('/api/class/<class_id>/events', methods=['GET'])
+def read_class_events(class_id):
+    # class_id = request.args.get("class_id")
+
+    if not class_id:
+        return jsonify({'status': 'error', 'message': 'Missing class id'}), 400
+    
+    try:
+        events = db.get_class_events(class_id)
+        return jsonify({'status': 'success', 'response': events})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
+    
+# Read All User Events
+@app.route('/api/user/<user_id>/events', methods=['GET'])
+def read_user_events_all(user_id):
+    # class_id = request.args.get("class_id")
+
+    if not user_id:
+        return jsonify({'status': 'error', 'message': 'Missing user id'}), 400
+    
+    try:
+        events = db.get_all_user_events(user_id)
+        return jsonify({'status': 'success', 'response': events})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
 
 # Delete Event
 @app.route('/api/events/<event_id>', methods=['DELETE'])
@@ -376,18 +404,6 @@ def delete_event(event_id):
         return jsonify({'status': 'success', 'response': f'Event {event_id} deleted'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
-
-####################################################
-# calendar routes
-####################################################
-@app.route('/<user>/calendar', methods=['GET'])
-def test_calendar(user):
-    if user == 'student':
-        return jsonify({'response': 'Student calendar accessed'})
-    elif user == 'professor':
-        return jsonify({'response': 'Professor calendar accessed'})
-    else:
-        return jsonify({'error': 'Invalid user'}), 404
 
 ####################################################
 # private functions

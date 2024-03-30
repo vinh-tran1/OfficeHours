@@ -10,19 +10,41 @@ const Sidebar = () => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
-    const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
+    const PROFESSOR_CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
+    const STUDENT_CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/classes';
     const [classes, setClasses] = useState([]);
     const toast = useToast();
 
     useEffect(() => {
-        getData(CLASS_API_URL, toast, (cls) => clsToName(cls))
+        getClasses();
     }, [])
 
+    function getClasses() {
+        if(userInfo.role === 'Student') {
+            // get student classes
+            getStudentClasses(STUDENT_CLASS_API_URL);
+          } else {
+            // get professor classes
+            getProfessorClasses(PROFESSOR_CLASS_API_URL);
+          }
+    }
+
+    function getProfessorClasses(api_url) {
+        getData(api_url, toast, (cls) => clsToName(cls));
+    }
+
+    function getStudentClasses(api_url) {
+        getData(api_url, toast, (cls) => clsToName(cls));
+    }
+    
     function clsToName(classes) {
         let clss = []
         for(let i in classes) {
             let cls = classes[i]
-            clss.push(new Class(cls[0], cls[1], cls[2], cls[3], cls[4], cls[5], cls[6]))
+            if (userInfo.role === 'Student')
+                clss.push(new Class(cls.abbr, cls.name, cls.hours, cls.time, cls.room, cls.street, cls.zipcode))
+            else
+                clss.push(new Class(cls[0], cls[1], cls[2], cls[3], cls[4], cls[5], cls[6]))
         }
         setClasses(clss)
     }

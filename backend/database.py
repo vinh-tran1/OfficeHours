@@ -283,10 +283,6 @@ def add_user_class(user_id: int, class_id: str) -> None:
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            # select_stmt = "SELECT id FROM class WHERE abbr = %s;"
-            # curs.execute(select_stmt, (class_id,))
-            # class_id = curs.fetchone()[0]
-
             insert_stmt = "INSERT INTO user_classes (uid, class_id) VALUES (%s, %s);"
             curs.execute(insert_stmt, (user_id, class_id))
             conn.commit()
@@ -298,11 +294,14 @@ def read_user_classes(user_id: int) -> list:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
             select_stmt = """
-                SELECT c.abbr, c.name, c.hours, c.time
+                SELECT c.abbr, c.name, c.hours, c.time, r.name AS room, r.street, r.zipcode
                 FROM class c
-                JOIN user_classes uc ON c.abbr = uc.class_id
+                LEFT JOIN user_classes uc ON c.abbr = uc.class_id
+                LEFT JOIN class_rooms cr on c.abbr = cr.class_id
+                LEFT JOIN rooms r ON r.name = cr.room_id
                 WHERE uc.uid = %s
-                ORDER BY c.abbr;
+                ORDER BY c.abbr, r.name
+                LIMIT 1000;
             """
             curs.execute(select_stmt, (user_id,))
             rows = curs.fetchall()
@@ -330,10 +329,6 @@ def user_class_exists(user_id: int, class_id: str) -> bool:
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            # select_stmt1 = "SELECT id FROM class WHERE abbr = %s;"
-            # curs.execute(select_stmt1, (abbr,))
-            # class_id = curs.fetchone()[0]
-            
             select_stmt = "SELECT EXISTS(SELECT 1 FROM user_classes WHERE uid = %s AND class_id = %s);"
             curs.execute(select_stmt, (user_id, class_id))
             already_enrolled = curs.fetchone()[0]
@@ -506,6 +501,57 @@ def all_events(admin_id: str) -> None:
             for row in sql_rows:
                 rows.append(dict(row))
             return rows
+        
+def get_class_events(class_id: str) -> list:
+    """
+    Return all events associated with a class
+    """
+    with get_db_connection() as conn:
+            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
+                select_stmt = """
+                    SELECT e.id, e.name, e.location, e.time, e.start, e.end
+                    FROM events e
+                    LEFT JOIN class_events ce ON ce.event_id = e.id
+                    LEFT JOIN class c ON ce.class_id = c.abbr
+                    WHERE c.abbr = %s
+                    GROUP BY e.id
+                    ORDER BY e.name
+                    LIMIT 1000
+                """
+                curs.execute(select_stmt, (class_id, ))
+                sql_rows = curs.fetchall()
+                rows = []
+                for row in sql_rows:
+                    rows.append(dict(row))
+
+                return rows
+            
+def get_all_user_events(user_id: str) -> list:
+    """
+    Return all of a student's events
+    """
+    with get_db_connection() as conn:
+            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
+                select_stmt = """
+                    SELECT e.id, e.name, e.location, e.time, e.start, e.end
+                    FROM events e
+                    LEFT JOIN class_events ce ON ce.event_id = e.id
+                    LEFT JOIN class c ON ce.class_id = c.abbr
+                    LEFT JOIN user_classes uc ON uc.class_id = c.abbr
+                    LEFT JOIN users u ON u.id = uc.uid
+                    WHERE u.id = %s
+                    GROUP BY e.id
+                    ORDER BY e.name
+                    LIMIT 1000
+                """
+                curs.execute(select_stmt, (user_id, ))
+                sql_rows = curs.fetchall()
+                rows = []
+                for row in sql_rows:
+                    rows.append(dict(row))
+
+                return rows
+
 
 def delete_event(event_id: int) -> None:
     """

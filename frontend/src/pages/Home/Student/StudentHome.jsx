@@ -16,7 +16,7 @@ const StudentHome = () => {
   const userInfo = useSelector(selectUserInfo);
   const user_id = userInfo.user_id;
 
-  const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id;
+  const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/classes';
   const POST_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/add-class';
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/delete-class'
   
@@ -34,7 +34,7 @@ const StudentHome = () => {
     setIsLoading(true);
     axios.get(GET_API_URL)
     .then((response) => {
-      setClasses(response.data.classes);
+      setClasses(response.data.response);
     })
     .catch((error) => {
       toast({ title: error.response.data.message, status: 'error', duration: 3000, isClosable: true })
