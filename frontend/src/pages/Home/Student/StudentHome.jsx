@@ -17,32 +17,43 @@ const StudentHome = () => {
   const user_id = userInfo.user_id;
 
   const GET_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/classes';
+  const GET_API_ALL_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/classes/all';
   const POST_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/add-class';
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/delete-class'
   
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [classes, setClasses] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
   const [updatedClass, setUpdatedClass] = useState(false);
 
   const refreshHome = () => {
     setUpdatedClass(!updatedClass);
   }
 
-  // get classes
+  // get user classes for dashboard + get ALL classes for search bar autocomplete
   useEffect(() => {
-    setIsLoading(true);
-    axios.get(GET_API_URL)
-    .then((response) => {
-      setClasses(response.data.response);
-    })
-    .catch((error) => {
-      toast({ title: error.response.data.message, status: 'error', duration: 3000, isClosable: true })
-    })
-    .finally(() => {
-      setIsLoading(false);
-    })
-  }, [updatedClass])
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      try {
+        const userClassesResponse = await axios.get(GET_API_URL);
+        setClasses(userClassesResponse.data.response);
+
+        const allClassesResponse = await axios.get(GET_API_ALL_URL);
+        setAllClasses(allClassesResponse.data.allClasses);
+
+      } catch (error) {
+        toast({ title: error.response.data.message, status: 'error', duration: 3000, isClosable: true, position: 'top' });
+      
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+
+  }, [updatedClass]);
 
   // POST request: add class
   const handleAddClass = (class_id) => {
@@ -53,10 +64,10 @@ const StudentHome = () => {
       const newClass = response.data.newClass;
       setClasses(currentClasses => [...currentClasses, newClass]);
       refreshHome();
-      toast({ title: 'added ' + class_id, status: response.data.status, isClosable: true })
+      toast({ title: 'added ' + class_id, status: response.data.status, isClosable: true, position: 'top' })
     })
     .catch((error) => {
-      toast({ title: error.response.data.message, status: 'error', isClosable: true })
+      toast({ title: error.response.data.message, status: 'error', isClosable: true, position: 'top' })
     })
   }
 
@@ -125,7 +136,7 @@ const StudentHome = () => {
           {/* class search */}
           <Flex direction="column" justifyContent="center" alignItems="center" minWidth="240px" ml={8}>
               <Text fontSize="4xl" fontWeight="bold" color="#063763" mb={8}>Add Class</Text>
-              <AddClass handleAddClass={handleAddClass} />
+              <AddClass handleAddClass={handleAddClass} allClasses={allClasses}/>
           </Flex>
 
         </Flex>

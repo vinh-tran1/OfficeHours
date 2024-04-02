@@ -32,8 +32,8 @@ const ClassCard = ({ abbr, name, hours, time, handleDeleteClass }) => {
                     onClick={handleRemoveClass}
                 />
             </Flex>
-            <Text fontSize="l" fontWeight="semibold" color="#666666" mb={2}>{name}</Text>
-            <Text fontSize="l" color="gray" mb={20}>{time}</Text>
+            <Text fontSize="lg" fontWeight="semibold" color="#444444" mb={2}>{name}</Text>
+            <Text fontSize="lg" color="#666666" mb={20}>{time}</Text>
             
             {/* Banner at the bottom of the card */}
             <Box position="absolute" bottom="0" left="0" right="0" bg="#BFDCFF" px={4} py={3}>

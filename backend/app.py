@@ -137,8 +137,16 @@ def read_class(class_id):
         return jsonify({'status': 'success', 'response': class_info})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
-
-
+    
+# Read ALL Classes From Database
+@app.route('/api/classes/all', methods=['GET'])
+def get_all_classes():
+    try:
+        class_info = db.get_all_classes()
+        return jsonify({'status': 'success', 'allClasses': class_info})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
+    
 # Read All Professor Classes
 @app.route('/api/professor/class', methods=['GET'])
 def read_classes():

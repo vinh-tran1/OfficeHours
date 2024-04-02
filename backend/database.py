@@ -202,7 +202,7 @@ def read_class(class_id: str) -> tuple:
 
 def read_all_classes(admin_id: str) -> list:
     """
-    read all classes
+    read all classes given admin_id
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
@@ -220,6 +220,22 @@ def read_all_classes(admin_id: str) -> list:
             curs.execute(select_stmt, (admin_id, ))
             rows = curs.fetchall()
             return rows
+        
+def get_all_classes() -> list:
+    """
+    get ALL classes in database
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = """
+                SELECT c.abbr, c.name
+                FROM class c
+            """
+            curs.execute(select_stmt, )
+            rows = curs.fetchall()
+            columns = [desc[0] for desc in curs.description]
+            classes = [dict(zip(columns, row)) for row in rows] if rows else []
+            return classes
 
 def update_class(class_id: str, name: str, time: str, hours: int) -> None:
     """

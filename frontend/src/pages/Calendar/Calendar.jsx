@@ -9,8 +9,6 @@ import { selectUserInfo } from '../../redux/userSlice';
 import moment from 'moment'
 import 'moment-timezone'
 import "../../styles/calendar.css"
-
-import axios from 'axios';
 import { MdContactSupport } from 'react-icons/md';
 
 moment.tz.setDefault('America/New_York')

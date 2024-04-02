@@ -58,7 +58,7 @@ const App = () => {
     })
     .catch((error) => {
       setAuthenticated(false);
-      toast({ title: error.response.data.response, status: 'error', isClosable: true })
+      toast({ title: error.response.data.response, status: 'error', isClosable: true, position: 'top' })
     });
   }
 
@@ -85,7 +85,7 @@ const App = () => {
     })
     .catch((error) => {
       setAuthenticated(false);
-      toast({ title: error.response.data.response, status: 'error', isClosable: true })
+      toast({ title: error.response.data.response, status: 'error', isClosable: true, position: 'top' })
     });
   }
 
