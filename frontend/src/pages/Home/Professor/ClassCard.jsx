@@ -34,10 +34,10 @@ const ClassCard = ({ cls, events, ta, deleteClass, update }) => {
             icon={<FaEdit size="20" color="black" />}
             variant="ghost"
             onClick={handleUpdateClass} />
-          <IconButton 
+          <IconButton
             icon={<FaTrash size="20" color="black" />}
-            variant="ghost" 
-            onClick={handleRemoveClass}  />
+            variant="ghost"
+            onClick={handleRemoveClass} />
         </Box>
 
       </Flex>
@@ -68,26 +68,27 @@ const ClassCard = ({ cls, events, ta, deleteClass, update }) => {
         </Box>
       ))}
 
-      {events !== undefined && events.length == 0 && <Text mt={2} fontSize="l" fontWeight="semibold"  color="gray">No Office Hours</Text>}
+      {events !== undefined && events.length === 0 && <Text mt={2} fontSize="l" fontWeight="semibold" color="gray">No Office Hours</Text>}
 
-      {/* <Divider color="black" mb={3} mt={3} /> */}
-
-      {/* All TAs/ULAs in class
-      <Flex justify="space-between" align="center">
+      <Divider color="black" mb={3} mt={3} />
+      <Flex mb={2} justify="space-between" align="center">
         <Text fontSize="xl" fontWeight="semibold" color="black">
-          TAs/ULAs
+          My TAs/ULAs
         </Text>
-      </Flex> */}
-      {/* {ta.map((assistant, index) => (
+      </Flex>
+      {ta !== undefined && ta.length > 0 ? ta.map((assistant, index) => (
         <Box key={index}>
           <Text fontSize="l" fontWeight="semibold" color="black">
             {assistant.name}
           </Text>
           <Text fontSize="l" fontWeight="semibold" color="gray">
-            Office hours: {assistant.hours}
+            Office hours: 3
           </Text>
         </Box>
-      ))} */}
+      ))
+        :
+        <Text>None Assigned</Text>
+      }
 
       {/* For spacing */}
       <Box mb={20}></Box>
@@ -107,7 +108,7 @@ const ClassCard = ({ cls, events, ta, deleteClass, update }) => {
           <IconButton
             icon={<FaRegArrowAltCircleRight size="20" color="black" />}
             variant="#BFDCFF"
-            onClick={() => navigate("/professor/"+ cls.abbr)}
+            onClick={() => navigate("/professor/" + cls.abbr)}
           />
         </Flex>
       </Box>

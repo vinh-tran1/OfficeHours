@@ -80,9 +80,9 @@ def user_exists(email: str) -> bool:
             exists = curs.fetchone()[0]
             return exists
         
-def add_professor(email: str, name: str, password: str, role: str) -> None:
+def add_admin(email: str, name: str, password: str, role: str) -> None:
     """
-    Add a new professor to the database.
+    Add a new admin to the database.
     """
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
@@ -95,9 +95,9 @@ def add_professor(email: str, name: str, password: str, role: str) -> None:
             curs.execute(insert_stmt, (email, name, hashed_password, role))
             conn.commit()
 
-def professor_exists(email: str) -> bool:
+def admin_exists(email: str) -> bool:
     """
-    Check if a professor exists based on the email.
+    Check if an admin exists based on the email.
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
@@ -135,7 +135,7 @@ def get_student_by_email(email: str) -> dict:
                 return dict(zip(columns, user))
             return None
         
-def get_professor_by_email(email: str) -> dict:
+def get_admin_by_email(email: str) -> dict:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
             select_stmt = "SELECT id, email, name, password FROM admins WHERE email = %s;"
@@ -145,6 +145,23 @@ def get_professor_by_email(email: str) -> dict:
                 columns = ['id', 'email', 'name', 'password', 'role']
                 return dict(zip(columns, user))
             return None
+
+def get_tas() -> list:
+    """
+    Get all TAs from the admin table
+    """
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
+            select_stmt = """
+                SELECT email, name
+                FROM admins
+                WHERE role = 'TA'
+                ORDER BY name;
+            """
+            curs.execute(select_stmt)
+            tas = curs.fetchall()
+            return [dict(ta) for ta in tas] if tas else []
+
 
 ####################################################
 # class crud
@@ -288,6 +305,25 @@ def class_verify_ownership(class_id: str, admin_id: str) -> bool:
             curs.execute(select_stmt, (class_id, admin_id))
             exists = curs.fetchone()[0]
             return exists
+        
+def get_tas_for_class(class_id: str) -> list:
+    """
+    Get all TAs (Teaching Assistants) for a specific class.
+    """
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
+            # SQL query that joins class_admins and admins tables
+            # to find admins with the role of 'TA' for the specified class.
+            select_stmt = """
+                SELECT a.id, a.email, a.name, a.role
+                FROM admins a
+                INNER JOIN class_admins ca ON a.id = ca.admin_id
+                WHERE ca.class_id = %s AND a.role = 'TA'
+                ORDER BY a.name;
+            """
+            curs.execute(select_stmt, (class_id,))
+            tas = curs.fetchall()
+            return [dict(ta) for ta in tas] if tas else []
 
 
 ####################################################

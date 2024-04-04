@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder='/')
 CORS(app)
 
 ####################################################
-# auth routes
+# user routes
 ####################################################
 
 # Admin Sign Up
@@ -29,15 +29,15 @@ def admin_signup():
     if not all([email, name, password, role]):
         return jsonify({'status': 'error', 'response': 'Missing required fields'}), 400
     
-    if db.professor_exists(email):
-        return jsonify({'status': 'error', 'response': 'Professor already exists'}), 409
+    if db.admin_exists(email):
+        return jsonify({'status': 'error', 'response': 'Admin already exists'}), 409
 
     try:
         # Check if the user already exists to avoid duplicates
-        db.add_professor(email, name, password, role)
-        professor = db.get_professor_by_email(email)
+        db.add_admin(email, name, password, role)
+        admin = db.get_admin_by_email(email)
 
-        return jsonify({'status': 'success', 'response': 'Admin created successfully', 'user': professor})
+        return jsonify({'status': 'success', 'response': 'Admin created successfully', 'user': admin})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed to create admin: {e}'}), 500
 
@@ -51,9 +51,9 @@ def admin_login():
     if not email or not password:
         return jsonify({'status': 'error', 'response': 'Missing email or password'}), 400
 
-    professor = db.get_professor_by_email(email)
-    if professor and db.check_password(professor['password'], password):
-        return jsonify({'status': 'success', 'response': 'Login successful', 'user': professor})
+    admin = db.get_admin_by_email(email)
+    if admin and db.check_password(admin['password'], password):
+        return jsonify({'status': 'success', 'response': 'Login successful', 'user': admin})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
@@ -95,6 +95,30 @@ def student_login():
         return jsonify({'status': 'success', 'response': 'Login successful', 'user': user})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
+    
+####################################################
+# TA routes
+####################################################
+    
+# get TA
+@app.route('/api/tas', methods=['GET'])
+def get_tas():
+    try:
+        tas = db.get_tas()
+        return jsonify({'status': 'success', 'tas': tas})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed to retrieve TAs: {e}'}), 500
+
+# get TAs for a specific class
+@app.route('/api/class/<class_id>/tas', methods=['GET'])
+def get_class_tas(class_id):
+    try:
+        tas = db.get_tas_for_class(class_id)
+        if not tas:
+            return jsonify({'status': 'error', 'response': 'No TAs found for the class or class does not exist'}), 404
+        return jsonify({'status': 'success', 'tas': tas})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed to retrieve TAs for class {class_id}: {e}'}), 500
 
 ####################################################
 # class routes
@@ -110,7 +134,8 @@ def post_class():
     time_hours = data.get('time-hours')
     room = data.get('room')
     admin_id = data.get('admin_id')
-    if abbr is None or name is None or time is None or time_hours is None or room is None or admin_id is None:
+    tas = data.get('tas')
+    if abbr is None or name is None or time is None or time_hours is None or room is None or admin_id is None or tas is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
     
     time = _convert_time_to_string(time, time_hours)
@@ -121,6 +146,12 @@ def post_class():
         db.add_class(abbr, name, time, 0)
         db.add_class_room(abbr, room)
         db.add_class_admin(abbr, admin_id)
+
+        if len(tas) > 0:
+            for ta in tas:
+                ta_full = db.get_admin_by_email(ta)
+                db.add_class_admin(abbr, ta_full['id'])
+
         return jsonify({'status': 'success', 'response': f'Class {abbr} added'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
