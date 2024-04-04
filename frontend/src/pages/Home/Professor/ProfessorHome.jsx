@@ -22,6 +22,7 @@ const ProfessorHome = () => {
   const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
   const EVENT_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events?admin_id=" + user_id;
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
+  const TAS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
   const [isLoading, setLoading] = useState(true);
   const [classes, setClasses] = useState([]);
   const [modalClass, setModalClass] = useState({})
@@ -39,7 +40,8 @@ const ProfessorHome = () => {
       let cls = {}
       cls.class = new Class(cls_info[0], cls_info[1], cls_info[2], cls_info[3], cls_info[4], cls_info[5], cls_info[6]);
       cls.events = await getEvents(cls.class.abbr)
-      cls.ta = undefined; // TODO next version
+      cls.ta = await getTAS(cls.class.abbr);
+      console.log("TAAAAS", cls.ta);
       clses.push(cls)
     }
     setClasses(clses)
@@ -59,6 +61,21 @@ const ProfessorHome = () => {
 
     const events = await response.json()
     return events['response']
+  }
+
+  async function getTAS(class_id) {
+    const response = await fetch(TAS_API_URL + class_id + "/tas")
+
+    if (!response.ok) {
+      toast({
+        title: response.status,
+        status: 'error',
+        isClosable: true,
+      })
+    }
+
+    const tasData = await response.json();
+    return tasData.tas;
   }
 
   function deleteClass(class_id) {

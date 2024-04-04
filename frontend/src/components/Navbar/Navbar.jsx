@@ -17,9 +17,14 @@ const Navbar = ({ authenticated, handleLogout }) => {
       <Spacer />
       <Flex alignItems="center">
         {authenticated &&
-        <RouterLink to="/calendar">
-          <Text fontSize={18} fontWeight={"bold"} px={4}>Calendar</Text>
-        </RouterLink>
+        <Flex>
+          <RouterLink to="/">
+            <Text fontSize={18} fontWeight={"bold"} px={4}>Classes</Text>
+          </RouterLink>
+          <RouterLink to="/calendar">
+            <Text fontSize={18} fontWeight={"bold"} px={4}>Calendar</Text>
+          </RouterLink>
+        </Flex>
         }
         <RouterLink to="/about">
           <Text fontSize={18} fontWeight={"bold"} px={4}>About</Text>
