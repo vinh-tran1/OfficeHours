@@ -81,7 +81,7 @@ const StudentHome = () => {
       const updatedClasses = classes.filter(classItem => classItem.class_id !== deletedClass.class_id);
       setClasses(updatedClasses);
       refreshHome();
-      toast({ title: 'deleted class ' + class_id, status: response.data.status, isClosable: true })
+      toast({ title: 'deleted class ' + class_id, status: response.data.status, isClosable: true, position: 'top' })
 
     })
     .catch((error) => {
