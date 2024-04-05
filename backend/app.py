@@ -206,6 +206,8 @@ def update_class(class_id):
     time_hours = data.get('time-hours')
     hours = data.get('hours')
     admin_id = data.get('admin_id')
+    addedTAs = data.get('addedTAs')
+    removedTAs = data.get('removedTAs')
     if name is None and time is None and hours is None and time_hours is None:
         return jsonify({'status': 'error', 'response': 'All update values are empty'}), 400
 
@@ -214,6 +216,14 @@ def update_class(class_id):
 
     if time is not None and time_hours is not None:
         time = _convert_time_to_string(time, time_hours)
+
+    if addedTAs is not None:
+        for ta in addedTAs:
+            ta_full = db.get_admin_by_email(ta)
+            db.add_class_admin(class_id, ta_full['id'])
+
+    if removedTAs is not None:
+        pass
     
     try:
         db.update_class(class_id, name, time, hours)
