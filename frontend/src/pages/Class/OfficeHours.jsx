@@ -6,7 +6,7 @@ import {
   IconButton
 } from '@chakra-ui/react';
 import { FaTrash } from 'react-icons/fa';
-import { capitalize, convertTo12HourFormat } from '../../../utils';
+import { capitalize, convertTo12HourFormat } from '../../utils';
 
 export const OfficeHoursCard = ({ id, location, time, start, end, deleteEvent }) => {
     const handleRemoveEvent = () => {

@@ -8,6 +8,7 @@ const LoginForm = ({ handleSubmit, handleSwitchAuthState }) => {
     const [role, setRole] = useState('Student');
 
     const onSubmit = (e) => {
+        console.log(role)
         e.preventDefault();
         const user = {
             email,

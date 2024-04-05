@@ -1,13 +1,13 @@
 import { Text, useToast, Flex, Box, Spinner, Grid } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { updateData, getData, postData } from "../../../utils";
+import { updateData, getData, postData } from "../../utils";
 import { OfficeHoursCard } from "./OfficeHours";
-import { AddOfficeHours } from "../../Create/OfficeHours/AddOfficeHours";
+import { AddOfficeHours } from "../Create/OfficeHours/AddOfficeHours";
 import { useSelector } from 'react-redux';
-import { selectUserInfo } from '../../../redux/userSlice';
+import { selectUserInfo } from '../../redux/userSlice';
 
-export const ProfessorClass = () => {
+export const AdminClass = () => {
     const { id } = useParams();
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;

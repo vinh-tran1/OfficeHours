@@ -11,7 +11,7 @@ const Auth = ({ handleLogin, handleSignUp }) => {
     const [authState, setAuthState] = useState('login');
 
     const handleSubmit = (user) => {
-        const onSuccess = () => navigate(user.role === "Student" ? '/student' : '/professor');
+        const onSuccess = () => navigate(user.role === "Student" ? '/student' : (user.role === "Professor" ? '/professor' : '/ta'));
         if (authState === "login") {
             handleLogin(user, onSuccess);
         } else {

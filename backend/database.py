@@ -138,7 +138,7 @@ def get_student_by_email(email: str) -> dict:
 def get_admin_by_email(email: str) -> dict:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            select_stmt = "SELECT id, email, name, password FROM admins WHERE email = %s;"
+            select_stmt = "SELECT id, email, name, password, role FROM admins WHERE email = %s;"
             curs.execute(select_stmt, (email,))
             user = curs.fetchone()
             if user:

@@ -19,7 +19,7 @@ const ProfessorHome = () => {
 
   const userInfo = useSelector(selectUserInfo);
   const user_id = userInfo.user_id;
-  const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
+  const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/admin/class?admin_id=" + user_id;
   const EVENT_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events?admin_id=" + user_id;
   const DELETE_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
   const TAS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/";
@@ -41,7 +41,7 @@ const ProfessorHome = () => {
       cls.class = new Class(cls_info[0], cls_info[1], cls_info[2], cls_info[3], cls_info[4], cls_info[5], cls_info[6]);
       cls.events = await getEvents(cls.class.abbr)
       cls.ta = await getTAS(cls.class.abbr);
-      console.log("TAAAAS", cls.ta);
+      // console.log("TAAAAS", cls.ta);
       clses.push(cls)
     }
     setClasses(clses)

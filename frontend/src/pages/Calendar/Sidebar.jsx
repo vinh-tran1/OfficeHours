@@ -10,7 +10,7 @@ const Sidebar = () => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
-    const PROFESSOR_CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/professor/class?admin_id=" + user_id;
+    const ADMIN_CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/admin/class?admin_id=" + user_id;
     const STUDENT_CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + '/api/user/' + user_id + '/classes';
     const [classes, setClasses] = useState([]);
     const toast = useToast();
@@ -24,12 +24,12 @@ const Sidebar = () => {
             // get student classes
             getStudentClasses(STUDENT_CLASS_API_URL);
           } else {
-            // get professor classes
-            getProfessorClasses(PROFESSOR_CLASS_API_URL);
+            // get admin classes (professor or TA)
+            getAdminClasses(ADMIN_CLASS_API_URL);
           }
     }
 
-    function getProfessorClasses(api_url) {
+    function getAdminClasses(api_url) {
         getData(api_url, toast, (cls) => clsToName(cls));
     }
 

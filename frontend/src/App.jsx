@@ -20,7 +20,8 @@ import FAQ from "./pages/FAQ/FAQ";
 import Calendar from "./pages/Calendar/Calendar";
 import ProfessorHome from "./pages/Home/Professor/ProfessorHome";
 import { ProfessorAddClass } from "./pages/Create/Class/AddClass";
-import { ProfessorClass } from "./pages/Class/Professor/ProfessorClass";
+import { AdminClass } from "./pages/Class/AdminClass";
+import TAHome from "./pages/Home/TA/TAHome";
 
 const App = () => {
 
@@ -34,10 +35,13 @@ const App = () => {
 
   const [authenticated, setAuthenticated] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [role, setRole] = useState("");
 
   const handleLogin = (user, onSuccess) => {
 
+    setRole(user.role);
     user.role === "Student" ? setAdmin(false) : setAdmin(true)
+    console.log(user)
     const loginUrl = user.role === "Student" ? STUDENT_LOGIN_API_URL : ADMIN_LOGIN_API_URL
 
     axios.post(loginUrl, user)
@@ -64,6 +68,7 @@ const App = () => {
 
   const handleSignUp = (user, onSuccess) => {
 
+    setRole(user.role);
     user.role === "Student" ? setAdmin(false) : setAdmin(true)
     const signUpUrl = user.role === "Student" ? STUDENT_SIGNUP_API_URL : ADMIN_SIGNUP_API_URL;
 
@@ -91,6 +96,8 @@ const App = () => {
 
   const handleLogout = () => {
     dispatch(clearUser());
+    setAdmin(false);
+    setRole("");
     setAuthenticated(false);
   }
 
@@ -100,13 +107,13 @@ const App = () => {
     }
     return <Outlet />;
   };
-
+  console.log(role)
   return (
     <ChakraProvider>
       <Router>
         <Navbar handleLogout={handleLogout} authenticated={authenticated} />
         <Routes>
-          <Route path="/" element={<Navigate replace={true} to={authenticated ? (admin ? "/professor" : "/student") : "/auth"} />} />
+          <Route path="/" element={<Navigate replace={true} to={authenticated ? (admin ? (role === 'Professor' ? "/professor" : "/ta") : "/student") : "/auth"} />} />
           <Route path="/auth" element={<Auth handleSignUp={handleSignUp} handleLogin={handleLogin} />} />
           {authenticated && <Route path="/auth" element={<Navigate replace={true} to="/" />} />}
 
@@ -116,8 +123,12 @@ const App = () => {
             <Route path="/professor">
               <Route index element={<ProfessorHome />} />
               <Route path="add" element={<ProfessorAddClass />} />
-              <Route path=":id" element={<ProfessorClass />} />
+              <Route path=":id" element={<AdminClass />} />
             </Route>
+            <Route path="/ta">
+              <Route index element={<TAHome />}/>
+              <Route path=":id" element={<AdminClass />}/>
+            </Route> 
             <Route path="/calendar" element={<Calendar />} />
           </Route>
 

@@ -76,12 +76,10 @@ const AddClass = ({ handleAddClass, allClasses }) => {
                             key={index} p={2} cursor="pointer" _hover={{ bg: '#BFDCFF' }} 
                             onClick={() => handleClassSelection(cls.abbr)}
                         >
-                        <Flex direction="column">
-                            <Text fontWeight="semibold">{cls.abbr}</Text>
-                            <Text opacity="70%">{cls.name}</Text>
-                            
-                        </Flex>
-                            
+                            <Flex direction="column">
+                                <Text fontWeight="semibold">{cls.abbr}</Text>
+                                <Text opacity="70%">{cls.name}</Text>  
+                            </Flex>
                         </ListItem>
                     ))}
                 </List>
