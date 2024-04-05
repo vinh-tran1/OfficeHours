@@ -46,12 +46,17 @@ def admin_signup():
 def admin_login():
     data = request.get_json()
     email = data.get('email')
+    role = data.get('role')
     password = data.get('password')
 
     if not email or not password:
         return jsonify({'status': 'error', 'response': 'Missing email or password'}), 400
 
     admin = db.get_admin_by_email(email)
+
+    if role and role != admin['role']:
+        return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
+
     if admin and db.check_password(admin['password'], password):
         return jsonify({'status': 'success', 'response': 'Login successful', 'user': admin})
     else:
@@ -114,8 +119,8 @@ def get_tas():
 def get_class_tas(class_id):
     try:
         tas = db.get_tas_for_class(class_id)
-        if not tas:
-            return jsonify({'status': 'error', 'response': 'No TAs found for the class or class does not exist'}), 404
+        # if not tas:
+        #     return jsonify({'status': 'error', 'response': 'No TAs found for the class or class does not exist'}), 404
         return jsonify({'status': 'success', 'tas': tas})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Failed to retrieve TAs for class {class_id}: {e}'}), 500
@@ -179,7 +184,7 @@ def get_all_classes():
         return jsonify({'status': 'error', 'message': f'Failed with: {e}'}), 500
     
 # Read All Professor Classes
-@app.route('/api/professor/class', methods=['GET'])
+@app.route('/api/admin/class', methods=['GET'])
 def read_classes():
     admin_id = request.args.get("admin_id")
     try:
