@@ -197,6 +197,28 @@ def add_class_admin(abbr: str, admin_id: int) -> None:
             curs.execute(insert_stmt, (abbr, admin_id))
             conn.commit()
 
+def remove_class_admin(abbr: str, admin_id: int) -> None:
+    """
+    remove ta from class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+
+            delete_events = """DELETE FROM events e
+                               USING event_admins ea, class_events ce
+                               WHERE
+                                    e.id = ea.event_id
+                                    AND ea.event_id = ce.event_id
+                                    AND ea.admin_id = %s 
+                                    AND ce.class_id = %s; """
+            curs.execute(delete_events, (admin_id, abbr))
+
+            delete_class_admins = """DELETE FROM class_admins ca
+                                     WHERE ca.admin_id = %s AND ca.class_id = %s"""
+            curs.execute(delete_class_admins, (admin_id, abbr))
+
+            conn.commit()
+
 def read_class(class_id: str) -> tuple:
     """
     read a class given class_id
@@ -265,6 +287,30 @@ def update_class(class_id: str, name: str, time: str, hours: int) -> None:
             curs.execute(update_stmt, used_values)
             conn.commit()
 
+def increment_hours(class_id: str) -> None:
+    """
+    increase the number of hours in a class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            update_stmt = "UPDATE class SET hours = hours + 1 WHERE abbr = %s"
+            curs.execute(update_stmt, (class_id, ))
+            conn.commit()
+
+def decrement_hours(event_id: int) -> None:
+    """
+    decrease the number of hours in a class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            update_stmt = """UPDATE class c
+                             SET hours = hours - 1
+                             FROM class_events ce
+                             WHERE c.abbr = ce.class_id
+                             AND ce.event_id = %s;"""
+            curs.execute(update_stmt, (event_id, ))
+            conn.commit()
+
 def delete_class(class_id: str) -> None:
     """
     Delete class where class = class_id
@@ -325,6 +371,18 @@ def get_tas_for_class(class_id: str) -> list:
             tas = curs.fetchall()
             return [dict(ta) for ta in tas] if tas else []
 
+def get_total_events(class_id: str):
+    """
+    return the total events for a class
+    """
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            select_stmt = """SELECT COUNT(event_id) AS event_count
+                            FROM class_events
+                            WHERE class_id = %s;"""
+            curs.execute(select_stmt, (class_id,))
+            events = curs.fetchone()[0]
+            return events
 
 ####################################################
 # user classes crud
@@ -538,12 +596,13 @@ def all_events(admin_id: str) -> None:
     """
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
-            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end 
+            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end, ce.class_id 
                              FROM events e
                              LEFT JOIN event_admins ea ON ea.event_id = e.id
                              LEFT JOIN admins a ON ea.admin_id = a.id
+                             LEFT JOIN class_events ce ON ce.event_id = e.id
                              WHERE a.id = %s
-                             GROUP BY e.id
+                             GROUP BY e.id, ce.class_id
                              ORDER BY e.name
                              LIMIT 1000
                             """
@@ -585,14 +644,14 @@ def get_all_user_events(user_id: str) -> list:
     with get_db_connection() as conn:
             with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
                 select_stmt = """
-                    SELECT e.id, e.name, e.location, e.time, e.start, e.end
+                    SELECT e.id, e.name, e.location, e.time, e.start, e.end, ce.class_id
                     FROM events e
                     LEFT JOIN class_events ce ON ce.event_id = e.id
                     LEFT JOIN class c ON ce.class_id = c.abbr
                     LEFT JOIN user_classes uc ON uc.class_id = c.abbr
                     LEFT JOIN users u ON u.id = uc.uid
                     WHERE u.id = %s
-                    GROUP BY e.id
+                    GROUP BY e.id, ce.class_id
                     ORDER BY e.name
                     LIMIT 1000
                 """
@@ -650,7 +709,7 @@ def event_verify_ownership(event_id: str, admin_id: str) -> bool:
 # private functions
 ####################################################
 
-def _create_update_stmt(table: str, where_id: str, where_name: str, **kwargs) -> tuple[str, tuple]:
+def _create_update_stmt(table: str, where_id: str, where_name: str, **kwargs) -> tuple[str, tuple]: # type: ignore
     update_stmt = f"UPDATE {table} SET "
     update_parts = []
     used_values = []

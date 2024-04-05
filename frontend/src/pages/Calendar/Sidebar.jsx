@@ -86,7 +86,7 @@ const Sidebar = () => {
                     <Box>
                         {/* TODO - NEXT VERSION */}
                         {/* <IconButton
-                            aria-label={`View ${className}`}
+                            aria-label={`View ${cls.name}`}
                             icon={<FaEye />}
                             size="sm"
                         /> */}

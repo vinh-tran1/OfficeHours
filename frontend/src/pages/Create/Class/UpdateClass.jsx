@@ -108,6 +108,9 @@ export const ClassModal = ({ isOpen, onClose, validate, cls }) => {
             values.removedTAs = removedTAs.map(ta => ta.email);
         }
 
+        if(values.time.length == 0)
+            values.time = null
+
         updateData(API_URL + cls.abbr, "PUT", values, toast, onExit);
     }
 
@@ -161,7 +164,7 @@ export const ClassModal = ({ isOpen, onClose, validate, cls }) => {
                 <ModalBody>
                     <Formik
                         innerRef={formRef}
-                        initialValues={{ "name": cls.name, "time-hours": cls.time !== undefined && cls.time.substring(cls.time.indexOf(" ") + 1) }}
+                        initialValues={{ "name": cls.name, "time-hours": cls.time !== undefined && cls.time.substring(cls.time.indexOf(" ") + 1), "time": [] }}
                         onSubmit={(values, actions) => updateClass(values, actions)}
                     >
                         {(props) => (

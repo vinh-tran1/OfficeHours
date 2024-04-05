@@ -3,9 +3,11 @@ program: app.py
 description: flask app
 """
 
+from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import database as db
+from datetime import datetime
 
 ####################################################
 # instantiate flask app
@@ -208,7 +210,7 @@ def update_class(class_id):
     admin_id = data.get('admin_id')
     addedTAs = data.get('addedTAs')
     removedTAs = data.get('removedTAs')
-    if name is None and time is None and hours is None and time_hours is None:
+    if name is None and time is None and hours is None and time_hours is None and addedTAs is None and removedTAs is None:
         return jsonify({'status': 'error', 'response': 'All update values are empty'}), 400
 
     if admin_id is None or not db.class_verify_ownership(class_id, admin_id):
@@ -223,7 +225,11 @@ def update_class(class_id):
             db.add_class_admin(class_id, ta_full['id'])
 
     if removedTAs is not None:
-        pass
+        for ta in removedTAs:
+            ta_full = db.get_admin_by_email(ta)
+            db.remove_class_admin(class_id, ta_full['id'])
+        
+        hours = db.get_total_events(class_id)
     
     try:
         db.update_class(class_id, name, time, hours)
@@ -380,12 +386,13 @@ def post_event():
     class_id = data.get('class_id')
     if name is None or room is None or time is None or start is None or end is None or admin_id is None or class_id is None:
         return jsonify({'status': 'error', 'response': 'Missing input value'}), 400
-    
+
     try:
         event_id = db.add_event(name, room, time, start, end)
         db.add_class_event(event_id, class_id)
         db.add_event_room(event_id, room)
         db.add_event_admin(event_id, admin_id)
+        db.increment_hours(class_id)
         return jsonify({'status': 'success', 'response': f'Event {name} added'})
     except Exception as e:
         return jsonify({'status': 'error', 'response': f'Failed with: {e}'}), 500
@@ -454,6 +461,7 @@ def delete_event(event_id):
         return jsonify({'status': 'error', 'response': 'Not Authorized'}), 401
 
     try:
+        db.decrement_hours(event_id)
         db.delete_event(event_id)
         return jsonify({'status': 'success', 'response': f'Event {event_id} deleted'})
     except Exception as e:

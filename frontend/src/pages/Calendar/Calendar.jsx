@@ -16,15 +16,23 @@ const localizer = momentLocalizer(moment)
 
 const eventStyleGetter = (event, start, end, isSelected) => {
   let style = {
-    backgroundColor: '#063763',
+    backgroundColor: event.hexColor,
     borderRadius: '10px',
     color: 'white',
     width: '100%',
+    border: "1px solid " + event.hexColor
   };
   return {
     style: style,
   };
 };
+
+// TODO - add better colors
+const colors = [
+  "#063763", "#124559", "#63535B",
+  "#53917E", "#6D1A36", "#9CADCE",
+  "#32292F", "#70ABAF", "#2B2D42"
+];
 
 const MyWeekCalendar = () => {
 
@@ -60,14 +68,23 @@ const MyWeekCalendar = () => {
 
   function cleanEvents(evts) {
     let events = []
+    let colorMap = {}
+    let colorIndex = 0;
+
     for(let i in evts) {
       let e = evts[i]
       const { startDate, endDate } = getDateRangeOfTheWeek(e.time, e.start, e.end);
+      if (colorMap[e.class_id] === undefined) {
+        colorMap[e.class_id] = colorIndex;
+        colorIndex = (colorIndex + 1) % colors.length; 
+      }
 
       let evt = {}
-      evt.title = e.name
+      evt.title = e.class_id + " - " + e.name
       evt.start = startDate;
       evt.end = endDate
+      evt.hexColor = colors[colorMap[e.class_id]]
+      evt.class_id = e.class_id  // for filtering purposes later on
       events.push(evt)
     }
     setEvents(events)
