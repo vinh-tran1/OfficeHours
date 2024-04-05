@@ -77,7 +77,7 @@ const ClassCard = ({ cls, events, ta, deleteClass, update }) => {
         </Text>
       </Flex>
       {ta !== undefined && ta.length > 0 ? ta.map((assistant, index) => (
-        <Box key={index}>
+        <Box mb={2} key={index}>
           <Text fontSize="l" fontWeight="semibold" color="black">
             {assistant.name}
           </Text>

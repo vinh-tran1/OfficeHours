@@ -41,7 +41,6 @@ const ProfessorHome = () => {
       cls.class = new Class(cls_info[0], cls_info[1], cls_info[2], cls_info[3], cls_info[4], cls_info[5], cls_info[6]);
       cls.events = await getEvents(cls.class.abbr)
       cls.ta = await getTAS(cls.class.abbr);
-      // console.log("TAAAAS", cls.ta);
       clses.push(cls)
     }
     setClasses(clses)
