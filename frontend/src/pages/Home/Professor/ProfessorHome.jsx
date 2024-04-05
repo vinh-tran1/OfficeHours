@@ -84,7 +84,7 @@ const ProfessorHome = () => {
   function deleteSuccess(class_id, response) {
     const updatedClasses = classes.filter(classItem => classItem.class.abbr !== class_id);
     setClasses(updatedClasses);
-    toast({ title: response, status: "success", isClosable: true, })
+    // toast({ title: response, status: "success", isClosable: true, })
   }
 
   function openModal(cls) {

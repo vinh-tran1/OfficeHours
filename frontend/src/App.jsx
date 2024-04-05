@@ -107,7 +107,7 @@ const App = () => {
     }
     return <Outlet />;
   };
-  console.log(role)
+
   return (
     <ChakraProvider>
       <Router>

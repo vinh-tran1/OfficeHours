@@ -10,7 +10,8 @@ import {
     Input,
     List,
     ListItem,
-    IconButton
+    IconButton,
+    Spacer
 } from '@chakra-ui/react';
 import { MdDelete } from 'react-icons/md';
 import { Field, Form, Formik } from 'formik';
@@ -19,7 +20,7 @@ import { ClassInput } from '../Input';
 import { ClassCheckBox } from '../CheckBox';
 import { RoomModal } from '../RoomModal';
 import { getData, postData, validate } from '../../../utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { selectUserInfo } from '../../../redux/userSlice';
 
@@ -32,6 +33,7 @@ export const ProfessorAddClass = () => {
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
     const toast = useToast();
+    const inputRef = useRef(null);
     const { isOpen, onOpen, onClose } = useDisclosure()
     const navigate = useNavigate();
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
@@ -39,6 +41,7 @@ export const ProfessorAddClass = () => {
     const [allTAS, setAllTAS] = useState([]);
     const [taEmail, setTaEmail] = useState('');
     const [selectedTAs, setSelectedTAs] = useState([]);
+    const [filteredTAs, setFilteredTAs] = useState([]);
 
     const submitForm = (values, actions) => {
         const submissionValues = {
@@ -102,6 +105,21 @@ export const ProfessorAddClass = () => {
     const handleRemoveTA = (email) => {
         setSelectedTAs(prevTAs => prevTAs.filter(ta => ta.email !== email));
     };
+    
+    const updateFilteredTAs = (input) => {
+        setTaEmail(input);
+        const inputLowerCase = input.toLowerCase();
+        const filtered = allTAS.filter(ta => (ta.email).toLowerCase().includes(inputLowerCase));
+        setFilteredTAs(filtered);
+    }
+
+    const handleTASelection = (taEmail) => {
+        setTaEmail(taEmail);
+        setFilteredTAs([]);
+
+        if (inputRef.current) // brings focus back to input upon click
+            inputRef.current.focus();
+    }
 
     return (
         <>
@@ -148,18 +166,40 @@ export const ProfessorAddClass = () => {
 
                                 {/* TA/ULA INFO */}
                                 <Text fontSize="2xl" fontWeight="bold" mt={4} opacity="80%" color="#063763" mb={3}>TAs/ULAs</Text>
-                                <Flex>
-                                    <Input
-                                        placeholder='Enter TA/ULA Email'
-                                        value={taEmail}
-                                        onChange={(e) => setTaEmail(e.target.value)}
-                                        mr={6}
-                                    />
+                                <Flex direction="row" w="full" justifyContent="space-between">
+                                    <Flex direction="column" flex="1" mr={4}>
+                                        <Input
+                                            placeholder='Enter TA/ULA Email'
+                                            value={taEmail}
+                                            // onChange={(e) => setTaEmail(e.target.value)}
+                                            onChange={(e) => updateFilteredTAs(e.target.value)}
+                                        />
+
+                                        {/* autocomplete */}
+                                        <List spacing={2} maxHeight="200px" borderRadius="md" overflowY="auto" backgroundColor="blue.50">
+                                            {filteredTAs && filteredTAs.map((ta, index) => (
+                                                <ListItem 
+                                                    key={index} p={2} cursor="pointer" _hover={{ bg: '#BFDCFF'}} 
+                                                    onClick={() => handleTASelection(ta.email)}
+                                                >
+                                                    <Flex direction="column">
+                                                        <Text fontWeight="semibold">{ta.email}</Text>
+                                                        <Text opacity="70%">{ta.name}</Text>  
+                                                    </Flex>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Flex>
+                                    
                                     <Button colorScheme='blue'
                                         opacity="70%"
                                         type='button'
-                                        minWidth={150} onClick={handleAddTAByEmail}>Add TA</Button>
+                                        minWidth={150} onClick={handleAddTAByEmail}>Add TA
+                                    </Button>
                                 </Flex>
+
+                                <Spacer />
+
                                 <List spacing={4} mt={4}>
                                     {selectedTAs.map(ta => (
                                         <ListItem
