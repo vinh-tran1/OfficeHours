@@ -108,7 +108,7 @@ export const ClassModal = ({ isOpen, onClose, validate, cls }) => {
             values.removedTAs = removedTAs.map(ta => ta.email);
         }
 
-        if(values.time.length == 0)
+        if(values.time.length === 0)
             values.time = null
 
         updateData(API_URL + cls.abbr, "PUT", values, toast, onExit);
