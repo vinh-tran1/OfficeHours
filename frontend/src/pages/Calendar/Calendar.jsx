@@ -29,10 +29,9 @@ const eventStyleGetter = (event, start, end, isSelected) => {
 
 // TODO - add better colors
 const colors = [
-  "#063763", "#124559", "#63535B",
-  "#53917E", "#6D1A36", "#9CADCE",
-  "#32292F", "#70ABAF", "#2B2D42"
-];
+  '#063763', '#440663', '#630612', 
+  '#5d6306', '#9CADCE', '#06631f',
+  '#63535B', '#315905', '#ae8c6d'];
 
 const MyWeekCalendar = () => {
 
@@ -41,12 +40,18 @@ const MyWeekCalendar = () => {
   const PROFESSOR_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events/all";
   const STUDENT_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/user/" + user_id + "/events";
   const [events, setEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
   const [scrollToTime, setTime] = useState(new Date().setHours(10,0,0,0))
+  const [hiddenClassIds, setHiddenClassIds] = useState(new Set());
   const toast = useToast();
 
   useEffect(() => {
     getEvents();
   }, [])
+
+  useEffect(() => {
+    setEvents(allEvents.filter(event => !hiddenClassIds.has(event.class_id)))
+  }, [hiddenClassIds, allEvents])
 
   function getEvents() {
     if(userInfo.role === 'Student') {
@@ -82,12 +87,25 @@ const MyWeekCalendar = () => {
       let evt = {}
       evt.title = e.class_id + " - " + e.name
       evt.start = startDate;
-      evt.end = endDate
-      evt.hexColor = colors[colorMap[e.class_id]]
-      evt.class_id = e.class_id  // for filtering purposes later on
-      events.push(evt)
+      evt.end = endDate;
+      evt.hexColor = colors[colorMap[e.class_id]];
+      evt.class_id = e.class_id;  // for filtering purposes later on
+      events.push(evt);
     }
-    setEvents(events)
+    setEvents(events);
+    setAllEvents(events);
+  }
+
+  function toggleHiddenClass(class_id) {
+    setHiddenClassIds(prevHiddenClassIds => {
+      const newHiddenClassIds = new Set(prevHiddenClassIds);
+      if (newHiddenClassIds.has(class_id)) {
+        newHiddenClassIds.delete(class_id);
+      } else {
+        newHiddenClassIds.add(class_id);
+      }
+      return newHiddenClassIds;
+    });
   }
 
   function getDateRangeOfTheWeek(dayName, startTime, endTime, referenceDate = new Date()) {
@@ -150,7 +168,7 @@ const MyWeekCalendar = () => {
           }}
         />
       </div>
-      <Sidebar />
+      <Sidebar toggleHiddenClass={toggleHiddenClass}/>
     </Flex>
   )
 };

@@ -6,7 +6,7 @@ import { selectUserInfo } from '../../redux/userSlice';
 import { getData } from '../../utils';
 import { Class } from '../../classes/Class';
 
-const Sidebar = () => {
+const Sidebar = ({ toggleHiddenClass }) => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
@@ -83,14 +83,23 @@ const Sidebar = () => {
                         <Text fontSize="md" fontWeight="semibold">{cls.abbr}</Text>
                         <Text fontSize="md">{cls.name}</Text>
                     </Flex>
-                    <Box>
+                    <Flex direction="row">
                         {/* TODO - NEXT VERSION */}
-                        {/* <IconButton
+                        <IconButton
+                            aria-label={`View ${cls.name}`}
+                            icon={<FaPencilAlt />}
+                            size="sm"
+                            mr={2}
+                            backgroundColor="white"
+                        />
+                        <IconButton
                             aria-label={`View ${cls.name}`}
                             icon={<FaEye />}
                             size="sm"
-                        /> */}
-                    </Box>
+                            backgroundColor="white"
+                            onClick={() => toggleHiddenClass(cls.abbr)}
+                        />
+                    </Flex>
                 </Flex>
             ))}
         </VStack>
