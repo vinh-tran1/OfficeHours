@@ -6,7 +6,7 @@ import { selectUserInfo } from '../../redux/userSlice';
 import { getData } from '../../utils';
 import { Class } from '../../classes/Class';
 
-const Sidebar = ({ toggleHiddenClass }) => {
+const Sidebar = ({ toggleHiddenClass, showModal }) => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
@@ -91,6 +91,7 @@ const Sidebar = ({ toggleHiddenClass }) => {
                             size="sm"
                             mr={2}
                             backgroundColor="white"
+                            onClick={() => showModal(cls.abbr)}
                         />
                         <IconButton
                             aria-label={`View ${cls.name}`}

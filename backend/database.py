@@ -620,12 +620,14 @@ def get_class_events(class_id: str) -> list:
     with get_db_connection() as conn:
             with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
                 select_stmt = """
-                    SELECT e.id, e.name, e.location, e.time, e.start, e.end
+                    SELECT e.id, e.name, e.location, e.time, e.start, e.end, a.name AS admin
                     FROM events e
                     LEFT JOIN class_events ce ON ce.event_id = e.id
                     LEFT JOIN class c ON ce.class_id = c.abbr
+                    LEFT JOIN event_admins ea ON ea.event_id = e.id
+                    LEFT JOIN admins a ON ea.admin_id = a.id
                     WHERE c.abbr = %s
-                    GROUP BY e.id
+                    GROUP BY e.id, a.name
                     ORDER BY e.name
                     LIMIT 1000
                 """
