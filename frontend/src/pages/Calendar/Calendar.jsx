@@ -88,7 +88,7 @@ const MyWeekCalendar = () => {
       }
 
       let evt = {}
-      evt.title = e.class_id + " - " + e.name
+      evt.title = e.name;
       evt.start = startDate;
       evt.end = endDate;
       evt.hexColor = colors[colorMap[e.class_id]];

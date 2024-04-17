@@ -8,9 +8,9 @@ const CustomEvent = ({ event, toggleHiddenEvent }) => {
     return (
       <Box position="relative" height="100%" py="3px" overflow="hidden">
         <Flex flexDir={"column"} isTruncated mr={4} >
-            <Text mb={1}>{event.class_id}</Text>
-            <Text mb={1}>{event.title.length > 11 ? event.title.substring(0,10) + "..." : event.title.substring(0,12)}</Text>
-            <Text>{event.location}</Text>
+            <Text fontWeight="semibold" mb={1}>{event.class_id}</Text>
+            <Text fontSize={14} mb={1}>{event.title.length > 16 ? event.title.substring(0,15) + "..." : event.title.substring(0,17)}</Text>
+            <Text fontSize={12}>{event.location}</Text>
         </Flex>
         <Box
           position="absolute"
