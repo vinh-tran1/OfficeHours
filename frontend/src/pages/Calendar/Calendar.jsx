@@ -218,7 +218,7 @@ const MyWeekCalendar = () => {
             }}
           />
         </div>
-        <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} />
+        <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hidden={hiddenClassIds}/>
         <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds}  />
       </Flex>
     );

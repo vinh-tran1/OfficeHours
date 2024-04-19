@@ -42,8 +42,8 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) 
                                     flex={1}
                                 >
                                     {cls.events !== undefined && cls.events.map((event, index) => (
-                                        <Flex key={index} borderBottom={(index == cls.events.length - 1) ? "" : "1px solid gray"} justify="space-between">
-                                            <Box p="2">
+                                        <Flex borderBottom={(index === cls.events.length - 1) ? "" : "1px solid gray"} justify="space-between">
+                                            <Box key={index} p="2">
                                                 <Text fontSize="sm" fontWeight="semibold" color="gray">
                                                     {event.time}: {convertTo12HourFormat(event.start) + "-" + convertTo12HourFormat(event.end)} @ {event.location}
                                                 </Text>
@@ -80,7 +80,7 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) 
                                     flex={1}
                                 >
                                     {cls.tas !== undefined && cls.tas.map((ta, index) => (
-                                        <Box key={index} borderBottom={(index == cls.tas.length - 1) ? "" : "1px solid"} p="2">
+                                        <Box key={index} borderBottom={(index === cls.tas.length - 1) ? "" : "1px solid"} p="2">
                                             <Text fontSize="l" fontWeight="semibold" color="gray">
                                                 {ta.name}
                                             </Text>

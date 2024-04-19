@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Box, VStack, Heading, IconButton, Text, useToast } from '@chakra-ui/react';
-import { FaPencilAlt, FaEye } from 'react-icons/fa';
+import { FaPencilAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { selectUserInfo } from '../../redux/userSlice';
 import { getData } from '../../utils';
 import { Class } from '../../classes/Class';
 
-const Sidebar = ({ toggleHiddenClass, showModal }) => {
+const Sidebar = ({ toggleHiddenClass, showModal, hidden }) => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
@@ -95,7 +95,7 @@ const Sidebar = ({ toggleHiddenClass, showModal }) => {
                         />
                         <IconButton
                             aria-label={`View ${cls.name}`}
-                            icon={<FaEye />}
+                            icon={hidden !== undefined && hidden.has(cls.abbr) ? <FaEyeSlash /> : <FaEye />}
                             size="sm"
                             backgroundColor="white"
                             onClick={() => toggleHiddenClass(cls.abbr)}
