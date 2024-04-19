@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import convertTo12HourFormat from "../../utils";
 
 const CustomEvent = ({ event, toggleHiddenEvent }) => {
 
@@ -21,7 +20,7 @@ const CustomEvent = ({ event, toggleHiddenEvent }) => {
           as={FaEye}
           onClick={(e) => {
             e.stopPropagation();
-            toggleHiddenEvent(event.title);
+            toggleHiddenEvent(event.id);
           }}
         />
       </Box>

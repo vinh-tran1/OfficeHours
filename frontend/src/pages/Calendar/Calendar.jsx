@@ -59,7 +59,7 @@ const MyWeekCalendar = () => {
   }, [])
 
   useEffect(() => {
-    setEvents(allEvents.filter(event => !hiddenClassIds.has(event.class_id) && !hiddenEventIds.has(event.title)));
+    setEvents(allEvents.filter(event => !hiddenClassIds.has(event.class_id) && !hiddenEventIds.has(event.id)));
   }, [hiddenClassIds, hiddenEventIds, allEvents]);
 
   function getEvents() {
@@ -94,6 +94,7 @@ const MyWeekCalendar = () => {
       }
 
       let evt = {}
+      evt.id = e.id;
       evt.title = e.name;
       evt.start = startDate;
       evt.end = endDate;
