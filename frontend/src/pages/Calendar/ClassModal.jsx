@@ -11,9 +11,10 @@ import {
     Box
 } from "@chakra-ui/react"
 import { convertTo12HourFormat } from "../../utils";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
-export function ClassModal({ isOpen, onClose, cls }) {
+export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) {
     const toast = useToast();
 
     return (
@@ -41,14 +42,27 @@ export function ClassModal({ isOpen, onClose, cls }) {
                                     flex={1}
                                 >
                                     {cls.events !== undefined && cls.events.map((event, index) => (
-                                        <Box key={index} borderBottom={(index == cls.events.length - 1) ? "" : "1px solid"} p="2">
-                                            <Text fontSize="l" fontWeight="semibold" color="gray">
-                                                {event.time}: {convertTo12HourFormat(event.start) + "-" + convertTo12HourFormat(event.end)} @ {event.location}
-                                            </Text>
-                                            <Text fontSize="l" color="gray">
-                                                HOST: {event.admin}
-                                            </Text>
-                                        </Box>
+                                        <Flex borderBottom={(index == cls.events.length - 1) ? "" : "1px solid gray"} justify="space-between">
+                                            <Box key={index} p="2">
+                                                <Text fontSize="sm" fontWeight="semibold" color="gray">
+                                                    {event.time}: {convertTo12HourFormat(event.start) + "-" + convertTo12HourFormat(event.end)} @ {event.location}
+                                                </Text>
+                                                <Text fontSize="sm" color="gray">
+                                                    HOST: {event.admin}
+                                                </Text>
+                                            </Box>
+                                            <Box
+                                                cursor="pointer"
+                                                fontSize="1.5em"
+                                                mt="2"
+                                                mr="3"
+                                                as={hidden !== undefined && hidden.has(event.name) ? FaEyeSlash : FaEye}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleHiddenEvent(event.name);
+                                                }}
+                                            />
+                                        </Flex>
                                     ))}
                                     {cls.events !== undefined && cls.events.length === 0 && <Box p="2"><Text fontSize="l" fontWeight="semibold" color="gray">No Office hours</Text></Box>}
                                 </Box>
