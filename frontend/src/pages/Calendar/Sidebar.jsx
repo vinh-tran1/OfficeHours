@@ -61,8 +61,9 @@ const Sidebar = ({ toggleHiddenClass, showModal, hidden }) => {
             borderRadius={10}
             borderRight="1px"
             borderColor="gray.200"
+            overflow="scroll"
         >
-            <Box bg="#063763" pt={3} pb={3} borderRadius="md">
+            <Box bg="#063763" pt={3} pb={3}borderRadius="md">
                 <Heading fontSize={26} color="white" textAlign={"center"}>Classes</Heading>
             </Box>
             {/* Example list of classes */}
