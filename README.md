@@ -18,10 +18,6 @@ Currently, there is no consistent way to keep track of office hours, peer tutori
 
 O(H), or Office(H)ours, is an office hours calendar and visualizer to better organize and coordinate schedules designed with the user in mind. Rather than just being a website that displays set classes OHs, O(H) offers a more individualized way to keep track of OHs. In addition, it offers seamless communication with professors and TA/ULAs as they can update times and events on the app which will automatically update on the student's view.
 
-## Table of Contents
-
-Table of Contents Here
-
 ## Tech Stack
 
 - React + Chakra UI
@@ -38,21 +34,20 @@ Table of Contents Here
 - `frontend`
   - `public`
   - `src`
-    - `classes`
-    - `components`
+    - `classes`: define class objects
+    - `components`: shared components
     - `pages`
-      - `About`
-      - `Auth`
-      - `Calendar`
-      - `Class`
-      - `Create`
-      - `FAQ`
-      - `Home`
-    - `redux`
-    - `styles`
+      - `About`: about page
+      - `Auth`: user authentication
+      - `Calendar`: calendar page
+      - `Class`: professor or TA class page
+      - `Create`: creating events
+      - `FAQ`: FAQ page
+      - `Home`: student, professor, or TA home page
+    - `redux`: global state for user and events
     - `App.jsx`
     - `index.js`
-  - `.env`
+  - `.env`: env variables for API and AWS urls
 
 ## How to Run
 
