@@ -110,11 +110,29 @@ const MyWeekCalendar = () => {
   function toggleHiddenClass(class_id) {
     setHiddenClassIds(prevHiddenClassIds => {
       const newHiddenClassIds = new Set(prevHiddenClassIds);
-      if (newHiddenClassIds.has(class_id)) {
+      let current = newHiddenClassIds.has(class_id);
+
+      if (current) {
         newHiddenClassIds.delete(class_id);
       } else {
         newHiddenClassIds.add(class_id);
       }
+
+      // now have to update events visibility associated with the class
+      setHiddenEventIds(prevHiddenEventIds => {
+        const newHiddenEventIds = new Set(prevHiddenEventIds);
+        allEvents.forEach(event => {
+          if (event.class_id === class_id) {
+            if (current) {
+              newHiddenEventIds.delete(event.id);
+            } else {
+              newHiddenEventIds.add(event.id);
+            }
+          }
+        });
+        return newHiddenEventIds;
+      });
+
       return newHiddenClassIds;
     });
   }
@@ -219,7 +237,7 @@ const MyWeekCalendar = () => {
           />
         </div>
         <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hidden={hiddenClassIds}/>
-        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds}  />
+        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenClasses={hiddenClassIds} />
       </Flex>
     );
   };

@@ -14,7 +14,7 @@ import { convertTo12HourFormat } from "../../utils";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
-export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) {
+export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hiddenClasses }) {
     const toast = useToast();
 
     return (
@@ -52,14 +52,16 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) 
                                                 </Text>
                                             </Box>
                                             <Box
-                                                cursor="pointer"
+                                                cursor={hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr) ? "pointer" : "not-allowed"}
                                                 fontSize="1.5em"
                                                 mt="2"
                                                 mr="3"
                                                 as={hidden !== undefined && hidden.has(event.id) ? FaEyeSlash : FaEye}
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleHiddenEvent(event.id);
+                                                    if (hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) {
+                                                        e.stopPropagation();
+                                                        toggleHiddenEvent(event.id);
+                                                    }
                                                 }}
                                             />
                                         </Flex>
