@@ -62,6 +62,7 @@ const App = () => {
     })
     .catch((error) => {
       setAuthenticated(false);
+      console.log("ERRORRRR", error)
       toast({ title: error.response.data.response, status: 'error', isClosable: true, position: 'top' })
     });
   }
