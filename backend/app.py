@@ -56,11 +56,12 @@ def admin_login():
 
     admin = db.get_admin_by_email(email)
 
-    if role and role != admin['role']:
-        return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
+    if admin:
+        if role and role != admin['role']:
+            return jsonify({'status': 'error', 'response': 'Invalid role'}), 401
 
-    if admin and db.check_password(admin['password'], password):
-        return jsonify({'status': 'success', 'response': 'Login successful', 'user': admin})
+        if db.check_password(admin['password'], password):
+            return jsonify({'status': 'success', 'response': 'Login successful', 'user': admin})
     else:
         return jsonify({'status': 'error', 'response': 'Invalid credentials'}), 401
 
