@@ -162,20 +162,21 @@ const MyWeekCalendar = () => {
     c.tas = await getClassTAs(c.class.abbr, toast);
     setCls(c);
     
-    setAdminHiddenEvents(prevHiddenEventIds => {
-      const newHiddenEventIds = new Set(prevHiddenEventIds);
-      c.events.forEach(evt => {
-        if (userInfo.role !== 'Student') {
-          if (evt.admin !== userInfo.name) {
-            newHiddenEventIds.add(evt.id);
-          }
-          else {
-            newHiddenEventIds.delete(evt.id);
-          }
-        }
+    if (userInfo.role !== 'Student') {
+      setAdminHiddenEvents(prevHiddenEventIds => {
+        const newHiddenEventIds = new Set(prevHiddenEventIds);
+        c.events.forEach(evt => {
+          
+            if (evt.admin !== userInfo.name) {
+              newHiddenEventIds.add(evt.id);
+            }
+            else {
+              newHiddenEventIds.delete(evt.id);
+            }
+        });
+        return newHiddenEventIds;
       });
-      return newHiddenEventIds;
-    });
+    }
 
     onOpen()
   }

@@ -15,9 +15,6 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
 export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hiddenClasses, hiddenAdminEvents }) {
-    const toast = useToast();
-    console.log(hiddenAdminEvents)
-
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
