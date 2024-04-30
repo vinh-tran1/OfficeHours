@@ -46,6 +46,7 @@ const MyWeekCalendar = () => {
   const [cls, setCls] = useState({})
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
+  const [adminHiddenEvents, setAdminHiddenEvents] = useState(new Set());
   const [scrollToTime, setTime] = useState(new Date().setHours(10, 0, 0, 0))
   const [hiddenClassIds, setHiddenClassIds] = useState(new Set());
   const [hiddenEventIds, setHiddenEventIds] = useState(new Set());
@@ -95,6 +96,7 @@ const MyWeekCalendar = () => {
 
       let evt = {}
       evt.id = e.id;
+      evt.admin = e.admin;
       evt.title = e.name;
       evt.start = startDate;
       evt.end = endDate;
@@ -156,9 +158,25 @@ const MyWeekCalendar = () => {
   async function updateModal(class_info) {
     let c = {}
     c.class = class_info;
-    c.events = await getClassEvents(c.class.abbr, toast)
+    c.events = await getClassEvents(c.class.abbr, toast);
     c.tas = await getClassTAs(c.class.abbr, toast);
-    setCls(c)
+    setCls(c);
+    
+    setAdminHiddenEvents(prevHiddenEventIds => {
+      const newHiddenEventIds = new Set(prevHiddenEventIds);
+      c.events.forEach(evt => {
+        if (userInfo.role !== 'Student') {
+          if (evt.admin !== userInfo.name) {
+            newHiddenEventIds.add(evt.id);
+          }
+          else {
+            newHiddenEventIds.delete(evt.id);
+          }
+        }
+      });
+      return newHiddenEventIds;
+    });
+
     onOpen()
   }
 
@@ -237,7 +255,7 @@ const MyWeekCalendar = () => {
           />
         </div>
         <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hidden={hiddenClassIds}/>
-        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenClasses={hiddenClassIds} />
+        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenClasses={hiddenClassIds} hiddenAdminEvents={adminHiddenEvents}/>
       </Flex>
     );
   };

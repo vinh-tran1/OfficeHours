@@ -596,7 +596,7 @@ def all_events(admin_id: str) -> None:
     """
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
-            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end, ce.class_id, er.room_id, r.street, r.zipcode
+            select_stmt = """SELECT e.id, e.name, e.location, e.time, e.start, e.end, ce.class_id, er.room_id, r.street, r.zipcode, a.name AS admin
                              FROM events e
                              LEFT JOIN event_admins ea ON ea.event_id = e.id
                              LEFT JOIN admins a ON ea.admin_id = a.id
@@ -604,7 +604,7 @@ def all_events(admin_id: str) -> None:
                              LEFT JOIN event_rooms er ON er.event_id = e.id
                              LEFT JOIN rooms r ON r.name = er.room_id
                              WHERE a.id = %s
-                             GROUP BY e.id, ce.class_id, er.room_id, r.street, r.zipcode
+                             GROUP BY e.id, a.name, ce.class_id, er.room_id, r.street, r.zipcode
                              ORDER BY e.name
                              LIMIT 1000
                             """
@@ -613,7 +613,7 @@ def all_events(admin_id: str) -> None:
             rows = []
             for row in sql_rows:
                 rows.append(dict(row))
-            print(rows)
+
             return rows
         
 def get_class_events(class_id: str) -> list:
