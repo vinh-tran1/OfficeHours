@@ -317,14 +317,8 @@ def delete_class(class_id: str) -> None:
     """
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            delete_class_rooms = "DELETE FROM class_rooms WHERE class_id = %s"
-            curs.execute(delete_class_rooms, (class_id, ))
-
-            delete_class_events = "DELETE FROM class_events WHERE class_id = %s"
-            curs.execute(delete_class_events, (class_id, ))
-
-            delete_class_admins = "DELETE FROM class_admins WHERE class_id = %s"
-            curs.execute(delete_class_admins, (class_id, ))
+            delete_events = "DELETE FROM events WHERE id IN (SELECT event_id FROM class_events WHERE class_id = %s);"
+            curs.execute(delete_events, (class_id, ))
 
             delete_stmt = "DELETE FROM class WHERE abbr = %s"
             curs.execute(delete_stmt, (class_id, ))
