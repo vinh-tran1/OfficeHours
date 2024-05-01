@@ -38,14 +38,14 @@ const FAQ = () => {
     <Box m={10}>
       <Text mb={10} textColor="#063763" textAlign="center" fontWeight="bold" fontSize="4xl">Frequently Asked Questions</Text>
       <Text fontSize={28} fontWeight="semibold" mb={4}>About Us</Text>
-      <Accordion>
+      <Accordion allowToggle>
         {data1.map((faq, index) => (
           <FAQItem key={index} title={faq.question} content={faq.answer} />
         ))}
       </Accordion>
 
       <Text fontSize={28} fontWeight="semibold" mt={10} mb={4}>Using Office(H)ours</Text>
-      <Accordion>
+      <Accordion allowToggle>
         {data2.map((faq, index) => (
           <FAQItem key={index} title={faq.question} content={faq.answer} />
         ))}
