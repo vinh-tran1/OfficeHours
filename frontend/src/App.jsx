@@ -41,7 +41,7 @@ const App = () => {
 
     setRole(user.role);
     user.role === "Student" ? setAdmin(false) : setAdmin(true)
-    console.log(user)
+    // console.log(user)
     const loginUrl = user.role === "Student" ? STUDENT_LOGIN_API_URL : ADMIN_LOGIN_API_URL
 
     axios.post(loginUrl, user)
@@ -62,6 +62,7 @@ const App = () => {
     })
     .catch((error) => {
       setAuthenticated(false);
+      console.log("ERRORRRR", error)
       toast({ title: error.response.data.response, status: 'error', isClosable: true, position: 'top' })
     });
   }

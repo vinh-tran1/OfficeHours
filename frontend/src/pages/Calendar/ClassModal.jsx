@@ -14,9 +14,7 @@ import { convertTo12HourFormat } from "../../utils";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
-export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) {
-    const toast = useToast();
-
+export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hiddenClasses, hiddenAdminEvents }) {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
@@ -52,14 +50,22 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden }) 
                                                 </Text>
                                             </Box>
                                             <Box
-                                                cursor="pointer"
+                                                cursor={
+                                                    (hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) && 
+                                                    (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))
+                                                    ? "pointer" : "not-allowed"}
                                                 fontSize="1.5em"
                                                 mt="2"
                                                 mr="3"
-                                                as={hidden !== undefined && hidden.has(event.id) ? FaEyeSlash : FaEye}
+                                                as={(hidden !== undefined && hidden.has(event.id)) || 
+                                                    (hiddenAdminEvents !== undefined && hiddenAdminEvents.has(event.id)) 
+                                                    ? FaEyeSlash : FaEye}
                                                 onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleHiddenEvent(event.id);
+                                                    if ((hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) &&
+                                                        (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))) {
+                                                        e.stopPropagation();
+                                                        toggleHiddenEvent(event.id);
+                                                    }
                                                 }}
                                             />
                                         </Flex>

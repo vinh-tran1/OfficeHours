@@ -14,23 +14,42 @@
 
 ## Project Description
 
-Description Here
+Currently, there is no consistent way to keep track of office hours, peer tutoring, etc. Students often take 4-6 classes, each with their own set of differing schedules. Some professors use Google Calendar, some use Google Sheets, some just display it on the Home page of Canvas, while others just put it in their syllabus. Many students input these office hours into their own calendar, an arduous process of creating 10-20 different events and the worst part is that OH are updated/canceled as the semester progresses. That means students have to continually look out for announcements, emails, etc. and physically update their own calendars to match.
 
-## Table of Contents
-
-Table of Contents Here
+O(H), or Office(H)ours, is an office hours calendar and visualizer to better organize and coordinate schedules designed with the user in mind. Rather than just being a website that displays set classes OHs, O(H) offers a more individualized way to keep track of OHs. In addition, it offers seamless communication with professors and TA/ULAs as they can update times and events on the app which will automatically update on the student's view.
 
 ## Tech Stack
 
 - React + Chakra UI
 - Flask
-- PostgreSQL
+- PostgreSQL + AWS
 
 ## Folder Structure
 
-File Tree Here
+- `backend`
+  - `app.py`: flask app
+  - `database.py`: database queries
+  - `requirements.txt`: python packages
+  - `run.py`: program to run app
+- `frontend`
+  - `public`
+  - `src`
+    - `classes`: define class objects
+    - `components`: shared components
+    - `pages`
+      - `About`: about page
+      - `Auth`: user authentication
+      - `Calendar`: calendar page
+      - `Class`: professor or TA class page
+      - `Create`: creating events
+      - `FAQ`: FAQ page
+      - `Home`: student, professor, or TA home page
+    - `redux`: global state for user and events
+    - `App.jsx`
+    - `index.js`
+  - `.env`: env variables for API and AWS urls
 
-## Deployment
+## How to Run
 
 ### Local
 
@@ -63,7 +82,7 @@ $ python run.py
 ```
 **Database**
 
-We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch: here are the steps:
+We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch -- here are the steps:
 
 First, following the instructions located [here](https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/) deploy a postgres db instance. After deploying, connect to your db using pg admin4.
 Then use our create_script located [here](../db/create_script).
@@ -78,10 +97,6 @@ $ source .venv/bin/activate
 # deactivate
 $ deactivate
 ```
-
-## Testing
-
-Testing Results Here
 
 ## Contributions
 

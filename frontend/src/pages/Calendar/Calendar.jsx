@@ -46,6 +46,7 @@ const MyWeekCalendar = () => {
   const [cls, setCls] = useState({})
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
+  const [adminHiddenEvents, setAdminHiddenEvents] = useState(new Set());
   const [scrollToTime, setTime] = useState(new Date().setHours(10, 0, 0, 0))
   const [hiddenClassIds, setHiddenClassIds] = useState(new Set());
   const [hiddenEventIds, setHiddenEventIds] = useState(new Set());
@@ -95,6 +96,7 @@ const MyWeekCalendar = () => {
 
       let evt = {}
       evt.id = e.id;
+      evt.admin = e.admin;
       evt.title = e.name;
       evt.start = startDate;
       evt.end = endDate;
@@ -110,11 +112,29 @@ const MyWeekCalendar = () => {
   function toggleHiddenClass(class_id) {
     setHiddenClassIds(prevHiddenClassIds => {
       const newHiddenClassIds = new Set(prevHiddenClassIds);
-      if (newHiddenClassIds.has(class_id)) {
+      let current = newHiddenClassIds.has(class_id);
+
+      if (current) {
         newHiddenClassIds.delete(class_id);
       } else {
         newHiddenClassIds.add(class_id);
       }
+
+      // now have to update events visibility associated with the class
+      setHiddenEventIds(prevHiddenEventIds => {
+        const newHiddenEventIds = new Set(prevHiddenEventIds);
+        allEvents.forEach(event => {
+          if (event.class_id === class_id) {
+            if (current) {
+              newHiddenEventIds.delete(event.id);
+            } else {
+              newHiddenEventIds.add(event.id);
+            }
+          }
+        });
+        return newHiddenEventIds;
+      });
+
       return newHiddenClassIds;
     });
   }
@@ -138,9 +158,26 @@ const MyWeekCalendar = () => {
   async function updateModal(class_info) {
     let c = {}
     c.class = class_info;
-    c.events = await getClassEvents(c.class.abbr, toast)
+    c.events = await getClassEvents(c.class.abbr, toast);
     c.tas = await getClassTAs(c.class.abbr, toast);
-    setCls(c)
+    setCls(c);
+    
+    if (userInfo.role !== 'Student') {
+      setAdminHiddenEvents(prevHiddenEventIds => {
+        const newHiddenEventIds = new Set(prevHiddenEventIds);
+        c.events.forEach(evt => {
+          
+            if (evt.admin !== userInfo.name) {
+              newHiddenEventIds.add(evt.id);
+            }
+            else {
+              newHiddenEventIds.delete(evt.id);
+            }
+        });
+        return newHiddenEventIds;
+      });
+    }
+
     onOpen()
   }
 
@@ -219,7 +256,7 @@ const MyWeekCalendar = () => {
           />
         </div>
         <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hidden={hiddenClassIds}/>
-        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds}  />
+        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenClasses={hiddenClassIds} hiddenAdminEvents={adminHiddenEvents}/>
       </Flex>
     );
   };

@@ -70,7 +70,7 @@ const SignupForm = ({ handleSubmit, handleSwitchAuthState }) => {
                 >
                     Sign Up
                 </Button>
-                <Flex justifyContent={"center"} mt={3} flexDir={"row"}>
+                <Flex justifyContent={"center"} mt={3} flexDir={"row"} pb={10}>
                     <Text mr={1} fontSize={16} fontWeight={"bold"} color={"#063763"}>Already Have An Account?</Text>
                     <Text onClick={handleSwitchAuthState} fontSize={16} fontWeight={"bold"} color={"#4988C1"} cursor={"pointer"}>Login Here!</Text>
                 </Flex>
