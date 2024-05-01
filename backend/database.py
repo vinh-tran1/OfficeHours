@@ -718,8 +718,8 @@ def get_hidden_events(admin_id: str) -> list:
             select_stmt = """
                 SELECT e.id
                     FROM events e
-                    LEFT JOIN hidden_events_admin he ON he.event_id = e.id
-                    LEFT JOIN admin a ON a.id = he.admin_id
+                    LEFT JOIN hidden_events_admins he ON he.event_id = e.id
+                    LEFT JOIN admins a ON a.id = he.admin_id
                     WHERE a.id = %s
                     GROUP BY e.id, a.id
                     ORDER BY e.name
@@ -757,15 +757,30 @@ def get_hidden_user_events(user_id: str) -> list:
 def hide_events(event_id: str, admin_id: str) -> None:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            insert_stmt = "INSERT INTO event_rooms (event_id, admin_id) VALUES (%s, %s)"
+            insert_stmt = "INSERT INTO hidden_events_admins (event_id, admin_id) VALUES (%s, %s) ON CONFLICT DO NOTHING"
             curs.execute(insert_stmt, (event_id, admin_id))
             conn.commit()
 
 def hide_user_events(event_id: str, user_id: str) -> None:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            insert_stmt = "INSERT INTO event_rooms (event_id, user_id) VALUES (%s, %s)"
+            insert_stmt = "INSERT INTO hidden_events (event_id, user_id) VALUES (%s, %s) ON CONFLICT DO NOTHING"
             curs.execute(insert_stmt, (event_id, user_id))
+            conn.commit()
+
+def unhide_events(event_id: str, admin_id: str) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            print('here')
+            delete_stmt = "DELETE FROM hidden_events_admins he WHERE he.event_id = %s AND he.admin_id = %s"
+            curs.execute(delete_stmt, (event_id, admin_id))
+            conn.commit()
+
+def unhide_user_events(event_id: str, user_id: str) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            delete_stmt = "DELETE FROM hidden_events he WHERE he.event_id = %s AND he.user_id = %s"
+            curs.execute(delete_stmt, (event_id, user_id))
             conn.commit()
 
 ####################################################

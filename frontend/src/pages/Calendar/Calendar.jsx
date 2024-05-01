@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import { Flex, useDisclosure, useToast } from '@chakra-ui/react';
+import { Flex, filter, useDisclosure, useToast } from '@chakra-ui/react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Sidebar from './Sidebar';
-import { getData } from '../../utils';
+import { getData, postData, updateData } from '../../utils';
 import { useSelector } from 'react-redux';
 import { selectUserInfo } from '../../redux/userSlice';
 import moment from 'moment'
@@ -43,6 +43,10 @@ const MyWeekCalendar = () => {
   const PROFESSOR_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/events/all";
   const STUDENT_EVENTS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/user/" + user_id + "/events";
   const CLASS_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/class/"
+  const HIDE_ADMIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/admin/" + user_id + "/hide/events";
+  const HIDE_USER_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/user/" + user_id + "/hide/events";
+  const HIDDEN_ADMIN_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/admin/hidden/events";
+  const HIDDEN_USER_API_URL = process.env.REACT_APP_API_URL_LOCAL + "/api/user/hidden/events";
   const [cls, setCls] = useState({})
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
@@ -56,32 +60,43 @@ const MyWeekCalendar = () => {
 
 
   useEffect(() => {
-    getEvents();
+    getHiddenEvents();
   }, [])
 
   useEffect(() => {
     setEvents(allEvents.filter(event => !hiddenClassIds.has(event.class_id) && !hiddenEventIds.has(event.id)));
   }, [hiddenClassIds, hiddenEventIds, allEvents]);
 
-  function getEvents() {
+  function getEvents(hidden_events) {
     if (userInfo.role === 'Student') {
       // get student events
-      getStudentEvents(STUDENT_EVENTS_API_URL);
+      getStudentEvents(STUDENT_EVENTS_API_URL, hidden_events);
     } else {
       // get professor events
-      getProfessorEvents(PROFESSOR_EVENTS_API_URL + "?admin_id=" + user_id);
+      getProfessorEvents(PROFESSOR_EVENTS_API_URL + "?admin_id=" + user_id, hidden_events);
     }
   }
 
-  function getProfessorEvents(api_url) {
-    getData(api_url, toast, (events) => cleanEvents(events));
+  function getHiddenEvents() {
+    getData(userInfo.role === 'Student' ? HIDDEN_USER_API_URL + "?user_id=" + user_id : HIDDEN_ADMIN_API_URL  + "?admin_id=" + user_id, toast, (events) => {
+      let hidden = new Set()
+      for(let i = 0; i < events.length; i++) {
+        hidden.add(events[i].id) 
+      }
+      setHiddenEventIds(hidden);
+      getEvents(hidden);
+    })
   }
 
-  function getStudentEvents(api_url) {
-    getData(api_url, toast, (events) => cleanEvents(events));
+  function getProfessorEvents(api_url, hidden_events) {
+    getData(api_url, toast, (events) => cleanEvents(events, hidden_events));
   }
 
-  function cleanEvents(evts) {
+  function getStudentEvents(api_url, hidden_events) {
+    getData(api_url, toast, (events) => cleanEvents(events, hidden_events));
+  }
+
+  function cleanEvents(evts, hidden) {
     let events = []
     let colorMap = {}
     let colorIndex = 0;
@@ -105,7 +120,8 @@ const MyWeekCalendar = () => {
       evt.location = e.location;
       events.push(evt);
     }
-    setEvents(events);
+    let filtered_events = events.filter(event => !hidden.has(event.id));
+    setEvents(filtered_events);
     setAllEvents(events);
   }
 
@@ -121,19 +137,25 @@ const MyWeekCalendar = () => {
       }
 
       // now have to update events visibility associated with the class
-      setHiddenEventIds(prevHiddenEventIds => {
-        const newHiddenEventIds = new Set(prevHiddenEventIds);
-        allEvents.forEach(event => {
-          if (event.class_id === class_id) {
-            if (current) {
-              newHiddenEventIds.delete(event.id);
-            } else {
-              newHiddenEventIds.add(event.id);
-            }
+      const newHiddenEventIds = new Set(hiddenEventIds);
+      allEvents.forEach(event => {
+        if (event.class_id === class_id) {
+          if (current) {
+            newHiddenEventIds.delete(event.id);
+          } else {
+            newHiddenEventIds.add(event.id);
           }
-        });
-        return newHiddenEventIds;
+        }
       });
+
+      const elements = getUniqueElementsByList(Array.from(hiddenEventIds), Array.from(newHiddenEventIds))
+
+      const values = {
+        "added_event_ids": elements.added,
+        "deleted_event_ids": elements.deleted
+      }
+      updateData(userInfo.role === 'Student' ? HIDE_USER_API_URL : HIDE_ADMIN_API_URL, "POST", values, toast, () => {})
+      setHiddenEventIds(newHiddenEventIds);
 
       return newHiddenClassIds;
     });
@@ -144,11 +166,23 @@ const MyWeekCalendar = () => {
       const newHiddenEventIds = new Set(prevHiddenEventIds);
       if (newHiddenEventIds.has(eventId)) {
         newHiddenEventIds.delete(eventId);
+        updateData(userInfo.role === 'Student' ? HIDE_USER_API_URL : HIDE_ADMIN_API_URL, "POST", {"deleted_event_ids": [eventId]}, toast, () => {})
       } else {
         newHiddenEventIds.add(eventId);
+        updateData(userInfo.role === 'Student' ? HIDE_USER_API_URL : HIDE_ADMIN_API_URL, "POST", {"added_event_ids": [eventId]}, toast, () => {})
       }
       return newHiddenEventIds;
     })
+  }
+
+  function getUniqueElementsByList(list1, list2) {
+    const deleted = list1.filter(item => !list2.includes(item));
+    const added = list2.filter(item => !list1.includes(item));
+    console.log(deleted, added)
+    return {
+      deleted,
+      added
+    };
   }
 
   function showModal(class_id) {

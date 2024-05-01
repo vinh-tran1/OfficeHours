@@ -438,45 +438,52 @@ def read_class_events(class_id):
 @app.route('/api/admin/<admin_id>/hide/events', methods=['POST'])
 def hide_events(admin_id):
     data = request.get_json()
-    event_ids = data.get('events_ids')
+    event_ids = data.get('added_event_ids')
+    deleted_event_ids = data.get('deleted_event_ids')
 
-    if event_ids is None:
-        return jsonify({'status': 'error', 'message': 'Missing event ids'}), 400
+    if event_ids is None and deleted_event_ids is None:
+        return jsonify({'status': 'error', 'response': 'Missing event ids'}), 400
 
-    if len(event_ids) > 0:
-        try:
+    try:
+        if event_ids and len(event_ids) > 0:
             for event in event_ids:
                 db.hide_events(event, admin_id)
-            return jsonify({'status': 'success'})
-        except Exception as e:
-            return jsonify({'status': 'error', 'message': 'Failed to hide events'}), 500
-    else:
-        return jsonify({'status': 'error', 'message': 'No event ids'}), 400
+        
+        if deleted_event_ids and len(deleted_event_ids) > 0:
+            for event in deleted_event_ids:
+                db.unhide_events(event, admin_id)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        print(e)
+        return jsonify({'status': 'error', 'response': 'Failed to hide events'}), 500
 
 @app.route('/api/user/<user_id>/hide/events', methods=['POST'])
 def hide_user_events(user_id):
     data = request.get_json()
-    event_ids = data.get('events_ids')
+    event_ids = data.get('added_event_ids')
+    deleted_event_ids = data.get('deleted_event_ids')
 
-    if event_ids is None:
-        return jsonify({'status': 'error', 'message': 'Missing event ids'}), 400
+    if event_ids is None and deleted_event_ids is None:
+        return jsonify({'status': 'error', 'response': 'Missing event ids'}), 400
 
-    if len(event_ids) > 0:
-        try:
+    
+    try:
+        if event_ids and len(event_ids) > 0:
             for event in event_ids:
                 db.hide_user_events(event, user_id)
-            return jsonify({'status': 'success'})
-        except Exception as e:
-            return jsonify({'status': 'error', 'message': 'Failed to hide events'}), 500
-    else:
-        return jsonify({'status': 'error', 'message': 'No event ids'}), 400
+        if deleted_event_ids and len(deleted_event_ids) > 0:
+            for event in deleted_event_ids:
+                db.unhide_user_events(event, user_id)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'response': 'Failed to hide events'}), 500
 
 @app.route('/api/admin/hidden/events', methods=['GET'])
 def hidden_events():
     admin_id = request.args.get("admin_id")
 
     if not admin_id:
-        return jsonify({'status': 'error', 'message': 'Missing user id'}), 400
+        return jsonify({'status': 'error', 'response': 'Missing user id'}), 400
 
     try:
         events = db.get_hidden_events(admin_id)
@@ -490,7 +497,7 @@ def hidden_user_events():
     user_id = request.args.get("user_id")
 
     if not user_id:
-        return jsonify({'status': 'error', 'message': 'Missing user id'}), 400
+        return jsonify({'status': 'error', 'response': 'Missing user id'}), 400
 
     try:
         events = db.get_hidden_user_events(user_id)

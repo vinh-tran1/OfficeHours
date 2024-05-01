@@ -41,6 +41,7 @@ export function updateData(url, method, values, toast, onSuccess) {
         .then(data => {
             if (data['status'] === 'success') {
                 onSuccess(data['response'])
+                return;
             }
             toast({
                 title: data['response'],
