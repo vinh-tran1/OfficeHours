@@ -65,7 +65,8 @@ $ python run.py
 
 We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch: here are the steps:
 
-- steps here
+First, following the instructions located [here](https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/) deploy a postgres db instance. After deploying, connect to your db using pg admin4.
+Then use our create_script located [here](../db/create_script).
 
 **Note: it is recommended to use a virtual environment for python**
 

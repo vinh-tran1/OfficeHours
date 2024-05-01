@@ -645,18 +645,6 @@ def get_class_events(class_id: str) -> list:
 def get_all_user_events(user_id: str) -> list:
     """
     Return all of a student's events
-
-    SELECT e.id, e.name, e.location, e.time, e.start, e.end, ce.class_id, er.room_id, r.street, r.zipcode
-                             FROM events e
-                             LEFT JOIN event_admins ea ON ea.event_id = e.id
-                             LEFT JOIN admins a ON ea.admin_id = a.id
-                             LEFT JOIN class_events ce ON ce.event_id = e.id
-                             LEFT JOIN event_rooms er ON er.event_id = e.id
-                             LEFT JOIN rooms r ON r.name = er.room_id
-                             WHERE a.id = %s
-                             GROUP BY e.id, ce.class_id, er.room_id, r.street, r.zipcode
-                             ORDER BY e.name
-                             LIMIT 1000
     """
     with get_db_connection() as conn:
             with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
@@ -723,6 +711,62 @@ def event_verify_ownership(event_id: str, admin_id: str) -> bool:
             curs.execute(select_stmt, (event_id, admin_id))
             exists = curs.fetchone()[0]
             return exists
+
+def get_hidden_events(admin_id: str) -> list:
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
+            select_stmt = """
+                SELECT e.id
+                    FROM events e
+                    LEFT JOIN hidden_events_admin he ON he.event_id = e.id
+                    LEFT JOIN admin a ON a.id = he.admin_id
+                    WHERE a.id = %s
+                    GROUP BY e.id, a.id
+                    ORDER BY e.name
+                    LIMIT 1000
+            """
+            curs.execute(select_stmt, (admin_id, ))
+            sql_rows = curs.fetchall()
+            rows = []
+            for row in sql_rows:
+                rows.append(dict(row))
+
+            return rows
+
+def get_hidden_user_events(user_id: str) -> list:
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as curs:
+            select_stmt = """
+                SELECT e.id
+                    FROM events e
+                    LEFT JOIN hidden_events he ON he.event_id = e.id
+                    LEFT JOIN users u ON u.id = he.user_id
+                    WHERE u.id = %s
+                    GROUP BY e.id, u.id
+                    ORDER BY e.name
+                    LIMIT 1000
+            """
+            curs.execute(select_stmt, (user_id, ))
+            sql_rows = curs.fetchall()
+            rows = []
+            for row in sql_rows:
+                rows.append(dict(row))
+
+            return rows
+
+def hide_events(event_id: str, admin_id: str) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO event_rooms (event_id, admin_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (event_id, admin_id))
+            conn.commit()
+
+def hide_user_events(event_id: str, user_id: str) -> None:
+    with get_db_connection() as conn:
+        with conn.cursor() as curs:
+            insert_stmt = "INSERT INTO event_rooms (event_id, user_id) VALUES (%s, %s)"
+            curs.execute(insert_stmt, (event_id, user_id))
+            conn.commit()
 
 ####################################################
 # private functions
