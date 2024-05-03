@@ -10,7 +10,7 @@
   </p>
 </div>
 
-<h3 align="center">by Nikhil, Vinh, Haroon</h3>
+<h3 align="center">byHaroon,  Nikhil, Vinh </h3>
 
 ## Project Description
 
@@ -20,9 +20,9 @@ O(H), or Office(H)ours, is an office hours calendar and visualizer to better org
 
 ## Tech Stack
 
-- React + Chakra UI
+- React + Redux + Chakra UI
 - Flask
-- PostgreSQL + AWS
+- PostgreSQL + AWS (pgAdmin4 + RDS)
 
 ## Folder Structure
 
@@ -31,6 +31,8 @@ O(H), or Office(H)ours, is an office hours calendar and visualizer to better org
   - `database.py`: database queries
   - `requirements.txt`: python packages
   - `run.py`: program to run app
+- `db`
+  - `create_script`: create tables for db (already hosted on AWS)
 - `frontend`
   - `public`
   - `src`
@@ -82,10 +84,11 @@ $ python run.py
 ```
 **Database**
 
-We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch -- here are the steps:
+We host our PostgreSQL on AWS, which is already linked to our app. In case you want to reproduce it from scratch – here are the steps:
 
-First, following the instructions located [here](https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/) deploy a postgres db instance. After deploying, connect to your db using pg admin4.
-Then use our create_script located [here](../db/create_script).
+1. First, following the instructions located [here](https://aws.amazon.com/getting-started/hands-on/create-connect-postgresql-db/) deploy a postgres db instance.
+2. After deploying, connect to your db using pg admin4.
+3. Then use our create_script located [here](db/create_script).
 
 **Note: it is recommended to use a virtual environment for python**
 
@@ -102,12 +105,38 @@ $ deactivate
 
 ### Nikhil Ismail ('24.5, ni58)
 
-Set up frontend skeleton, set up react router for navigation, built UI for auth page
+- set up frontend skeleton and general frontend
+- set up react router for navigation
+- worked on authentication
+- worked on calendar
 
 ### Vinh Tran ('25, vt237)
 
-Set up backend skeleton + designed frontend UI and worked on student view, FAQ, and About pages
+- set up backend skeleton
+- designed frontend UI
+- worked on student view, TA view, FAQ, and About pages
+- worked on redux for storing user state
 
 ### Haroon Mohamedali ('26, hhm22)
 
-Set up PostgreSQL DB + python connection to DB and worked on professor view
+- set up PostgreSQL DB + python connection to DB
+- worked on professor view
+- worked on calendar
+- worked on hidden classes for calendar
+
+## UI/UX Demo ([v0 figma design here](https://www.figma.com/file/TSaiytXbBwi5lgdekpF6Sw/O(H)-App?type=design&node-id=0%3A1&mode=design&t=2Pk2q2PRqZGBqYvp-1))
+
+### Student View
+<img src="frontend/public/student_home.png" />
+<img src="frontend/public/student_calendar.png" />
+
+### Professor View
+<img src="frontend/public/prof_home.png" />
+<img src="frontend/public/prof_calendar.png" />
+<img src="frontend/public/prof_create_class.png" />
+<img src="frontend/public/prof_update_class.png" />
+
+### TA/ULA View
+<img src="frontend/public/ta_home.png" />
+<img src="frontend/public/ta_calendar.png" />
+
