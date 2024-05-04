@@ -54,9 +54,6 @@ const Sidebar = ({ toggleHiddenClass, showModal, hiddenEvents, allEvents }) => {
             .filter(event => event.class_id === class_id)
             .every(event => hiddenEvents.has(event.id));
 
-
-        // console.log(class_id, allClassEventsHidden);
-
         return allClassEventsHidden;
     }
 

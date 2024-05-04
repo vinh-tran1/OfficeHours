@@ -50,10 +50,6 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hi
                                                 </Text>
                                             </Box>
                                             <Box
-                                                // cursor={
-                                                //     (hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) && 
-                                                //     (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))
-                                                //     ? "pointer" : "not-allowed"}
                                                 cursor={
                                                     hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id)
                                                     ? "pointer" : "not-allowed"}
@@ -63,13 +59,6 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hi
                                                 as={(hidden !== undefined && hidden.has(event.id)) || 
                                                     (hiddenAdminEvents !== undefined && hiddenAdminEvents.has(event.id)) 
                                                     ? FaEyeSlash : FaEye}
-                                                // onClick={(e) => {
-                                                //     if ((hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) &&
-                                                //         (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))) {
-                                                //         e.stopPropagation();
-                                                //         toggleHiddenEvent(event.id);
-                                                //     }
-                                                // }}
                                                 onClick={(e) => {
                                                     if (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id)) {
                                                         e.stopPropagation();

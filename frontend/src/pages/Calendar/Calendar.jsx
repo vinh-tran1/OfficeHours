@@ -51,7 +51,6 @@ const MyWeekCalendar = () => {
   const [allEvents, setAllEvents] = useState([]);
   const [adminHiddenEvents, setAdminHiddenEvents] = useState(new Set());
   const [scrollToTime, setTime] = useState(new Date().setHours(10, 0, 0, 0))
-  const [hiddenClassIds, setHiddenClassIds] = useState(new Set());
   const [hiddenEventIds, setHiddenEventIds] = useState(new Set());
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -124,43 +123,40 @@ const MyWeekCalendar = () => {
     setAllEvents(events);
   }
 
+  function isClassHidden(class_id) {
+      const allClassEventsHidden = allEvents
+          .filter(event => event.class_id === class_id)
+          .every(event => hiddenEventIds.has(event.id));
+
+      return allClassEventsHidden;
+  }
+
   function toggleHiddenClass(class_id) {
-    setHiddenClassIds(prevHiddenClassIds => {
-      const newHiddenClassIds = new Set(prevHiddenClassIds);
-      let current = newHiddenClassIds.has(class_id);
 
-      if (current) {
-        newHiddenClassIds.delete(class_id);
-      } else {
-        newHiddenClassIds.add(class_id);
-      }
+    const newHiddenEventIds = new Set(hiddenEventIds);
 
-      // now have to update events visibility associated with the class
-      const newHiddenEventIds = new Set(hiddenEventIds);
-      allEvents.forEach(event => {
-        if (event.class_id === class_id) {
-          if (current) {
-            newHiddenEventIds.delete(event.id);
-            console.log('delete', event.class_id)
-          } else {
-            newHiddenEventIds.add(event.id);
-            console.log('add', event.class_id)
-          }
+    allEvents.forEach(event => {
+      if (event.class_id === class_id) {
+        if (isClassHidden(class_id)) {
+          newHiddenEventIds.delete(event.id);
+          // console.log('delete', event.class_id)
+        } 
+        else {
+          newHiddenEventIds.add(event.id);
+          // console.log('add', event.class_id)
         }
-      });
-
-      console.log('old', hiddenEventIds, 'new', newHiddenEventIds);
-      const elements = getUniqueElementsByList(Array.from(hiddenEventIds), Array.from(newHiddenEventIds))
-
-      const values = {
-        "added_event_ids": elements.added,
-        "deleted_event_ids": elements.deleted
       }
-      updateData(userInfo.role === 'Student' ? HIDE_USER_API_URL : HIDE_ADMIN_API_URL, "POST", values, toast, () => {})
-      setHiddenEventIds(newHiddenEventIds);
-
-      return newHiddenClassIds;
     });
+
+    // console.log('old', hiddenEventIds, 'new', newHiddenEventIds);
+
+    const elements = getUniqueElementsByList(Array.from(hiddenEventIds), Array.from(newHiddenEventIds))
+    const values = {
+      "added_event_ids": elements.added,
+      "deleted_event_ids": elements.deleted
+    }
+    updateData(userInfo.role === 'Student' ? HIDE_USER_API_URL : HIDE_ADMIN_API_URL, "POST", values, toast, () => {})
+    setHiddenEventIds(newHiddenEventIds);
   }
 
   function toggleHiddenEvent(eventId) {
@@ -180,7 +176,7 @@ const MyWeekCalendar = () => {
   function getUniqueElementsByList(list1, list2) {
     const deleted = list1.filter(item => !list2.includes(item));
     const added = list2.filter(item => !list1.includes(item));
-    console.log('deleted', deleted, 'added', added)
+    // console.log('deleted', deleted, 'added', added)
     return {
       deleted,
       added

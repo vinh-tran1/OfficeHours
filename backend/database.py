@@ -765,7 +765,6 @@ def hide_user_events(event_id: str, user_id: str) -> None:
 def unhide_events(event_id: str, admin_id: str) -> None:
     with get_db_connection() as conn:
         with conn.cursor() as curs:
-            print('here')
             delete_stmt = "DELETE FROM hidden_events_admins he WHERE he.event_id = %s AND he.admin_id = %s"
             curs.execute(delete_stmt, (event_id, admin_id))
             conn.commit()
