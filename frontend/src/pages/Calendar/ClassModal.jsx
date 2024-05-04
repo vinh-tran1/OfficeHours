@@ -14,7 +14,7 @@ import { convertTo12HourFormat } from "../../utils";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
-export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hiddenClasses, hiddenAdminEvents }) {
+export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hiddenAdminEvents }) {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
@@ -50,9 +50,12 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hi
                                                 </Text>
                                             </Box>
                                             <Box
+                                                // cursor={
+                                                //     (hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) && 
+                                                //     (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))
+                                                //     ? "pointer" : "not-allowed"}
                                                 cursor={
-                                                    (hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) && 
-                                                    (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))
+                                                    hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id)
                                                     ? "pointer" : "not-allowed"}
                                                 fontSize="1.5em"
                                                 mt="2"
@@ -60,9 +63,15 @@ export function ClassModal({ isOpen, onClose, cls, toggleHiddenEvent, hidden, hi
                                                 as={(hidden !== undefined && hidden.has(event.id)) || 
                                                     (hiddenAdminEvents !== undefined && hiddenAdminEvents.has(event.id)) 
                                                     ? FaEyeSlash : FaEye}
+                                                // onClick={(e) => {
+                                                //     if ((hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) &&
+                                                //         (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))) {
+                                                //         e.stopPropagation();
+                                                //         toggleHiddenEvent(event.id);
+                                                //     }
+                                                // }}
                                                 onClick={(e) => {
-                                                    if ((hiddenClasses !== undefined && !hiddenClasses.has(cls.class.abbr)) &&
-                                                        (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id))) {
+                                                    if (hiddenAdminEvents !== undefined && !hiddenAdminEvents.has(event.id)) {
                                                         e.stopPropagation();
                                                         toggleHiddenEvent(event.id);
                                                     }

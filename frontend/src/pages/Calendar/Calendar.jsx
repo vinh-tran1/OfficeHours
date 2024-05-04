@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import { Flex, filter, useDisclosure, useToast } from '@chakra-ui/react';
+import { Flex, useDisclosure, useToast } from '@chakra-ui/react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Sidebar from './Sidebar';
 import { getData, postData, updateData } from '../../utils';
@@ -9,7 +9,6 @@ import { selectUserInfo } from '../../redux/userSlice';
 import moment from 'moment'
 import 'moment-timezone'
 import "../../styles/calendar.css"
-import { MdContactSupport } from 'react-icons/md';
 import { ClassModal } from './ClassModal';
 import { getClassEvents, getClassTAs } from './CalendarUtils';
 import CustomEvent from './CustomEvent';
@@ -64,8 +63,8 @@ const MyWeekCalendar = () => {
   }, [])
 
   useEffect(() => {
-    setEvents(allEvents.filter(event => !hiddenClassIds.has(event.class_id) && !hiddenEventIds.has(event.id)));
-  }, [hiddenClassIds, hiddenEventIds, allEvents]);
+    setEvents(allEvents.filter(event => !hiddenEventIds.has(event.id)));
+  }, [hiddenEventIds, allEvents]);
 
   function getEvents(hidden_events) {
     if (userInfo.role === 'Student') {
@@ -142,12 +141,15 @@ const MyWeekCalendar = () => {
         if (event.class_id === class_id) {
           if (current) {
             newHiddenEventIds.delete(event.id);
+            console.log('delete', event.class_id)
           } else {
             newHiddenEventIds.add(event.id);
+            console.log('add', event.class_id)
           }
         }
       });
 
+      console.log('old', hiddenEventIds, 'new', newHiddenEventIds);
       const elements = getUniqueElementsByList(Array.from(hiddenEventIds), Array.from(newHiddenEventIds))
 
       const values = {
@@ -178,7 +180,7 @@ const MyWeekCalendar = () => {
   function getUniqueElementsByList(list1, list2) {
     const deleted = list1.filter(item => !list2.includes(item));
     const added = list2.filter(item => !list1.includes(item));
-    console.log(deleted, added)
+    console.log('deleted', deleted, 'added', added)
     return {
       deleted,
       added
@@ -195,7 +197,7 @@ const MyWeekCalendar = () => {
     c.events = await getClassEvents(c.class.abbr, toast);
     c.tas = await getClassTAs(c.class.abbr, toast);
     setCls(c);
-    
+
     if (userInfo.role !== 'Student') {
       setAdminHiddenEvents(prevHiddenEventIds => {
         const newHiddenEventIds = new Set(prevHiddenEventIds);
@@ -289,8 +291,8 @@ const MyWeekCalendar = () => {
             }}
           />
         </div>
-        <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hidden={hiddenClassIds}/>
-        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenClasses={hiddenClassIds} hiddenAdminEvents={adminHiddenEvents}/>
+        <Sidebar toggleHiddenClass={toggleHiddenClass} showModal={showModal} hiddenEvents={hiddenEventIds} allEvents={allEvents}/>
+        <ClassModal isOpen={isOpen} onClose={onClose} cls={cls} toggleHiddenEvent={toggleHiddenEvent} hidden={hiddenEventIds} hiddenAdminEvents={adminHiddenEvents}/>
       </Flex>
     );
   };

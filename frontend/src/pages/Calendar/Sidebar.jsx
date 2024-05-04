@@ -6,7 +6,7 @@ import { selectUserInfo } from '../../redux/userSlice';
 import { getData } from '../../utils';
 import { Class } from '../../classes/Class';
 
-const Sidebar = ({ toggleHiddenClass, showModal, hidden }) => {
+const Sidebar = ({ toggleHiddenClass, showModal, hiddenEvents, allEvents }) => {
 
     const userInfo = useSelector(selectUserInfo);
     const user_id = userInfo.user_id;
@@ -47,6 +47,17 @@ const Sidebar = ({ toggleHiddenClass, showModal, hidden }) => {
                 clss.push(new Class(cls[0], cls[1], cls[2], cls[3], cls[4], cls[5], cls[6]))
         }
         setClasses(clss)
+    }
+
+    function isClassHidden(class_id) {
+        const allClassEventsHidden = allEvents
+            .filter(event => event.class_id === class_id)
+            .every(event => hiddenEvents.has(event.id));
+
+
+        // console.log(class_id, allClassEventsHidden);
+
+        return allClassEventsHidden;
     }
 
     return (
@@ -96,7 +107,7 @@ const Sidebar = ({ toggleHiddenClass, showModal, hidden }) => {
                         />
                         <IconButton
                             aria-label={`View ${cls.name}`}
-                            icon={hidden !== undefined && hidden.has(cls.abbr) ? <FaEyeSlash /> : <FaEye />}
+                            icon={isClassHidden(cls.abbr) ? <FaEyeSlash /> : <FaEye />}
                             size="sm"
                             backgroundColor="white"
                             onClick={() => toggleHiddenClass(cls.abbr)}
